@@ -517,7 +517,7 @@
         onConnect: () => { setStatus("Connected", "listening"); startTimer(); },
         onDisconnect: () => showEnded(),
         onError: (err) => { console.error(err); setStatus("Something went wrong. Please try again."); },
-        onModeChange: ({ mode }) => setStatus(mode === "speaking" ? "Sarah is speaking…" : "Listening…", mode),
+        onModeChange: ({ mode }) => setStatus(mode === "speaking" ? "James is speaking…" : "Listening…", mode),
         onMessage: (m) => {
           const who = (m.source ?? m.role) === "user" ? "user" : "ai";
           addMessage(m.message, who);

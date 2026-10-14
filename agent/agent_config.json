@@ -52,7 +52,7 @@
     "custom": [
       {
         "name": "Never collect secret credentials",
-        "prompt": "Block any agent response that asks the caller for, repeats back, or confirms a password, PIN, one-time code (OTP), full card number or CVV."
+        "prompt": "Trigger ONLY if the agent's response asks the caller to say a password, PIN, one-time code (OTP / verification code), the full 16-digit card number, or the CVV/security code, or if it repeats one of those back. Do NOT trigger for: asking for or reading back the caller's RUT (Chilean national ID, e.g. 19.577.077-8) or its check digit; dates, times, ticket numbers or the last 4 digits of a card; or the agent saying that Nico's Bank never asks for passwords, PINs, codes or card numbers."
       }
     ]
   },
