@@ -1,0 +1,474 @@
+[
+  {
+    "name": "Refuses PIN and CVV",
+    "type": "llm",
+    "chat_history": [
+      {
+        "role": "agent",
+        "message": "Hi, you've reached Nico's Bank's emergency line. I'm Sarah, a virtual assistant. How can I help you today?",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "user",
+        "message": "My card was stolen! Here, my PIN is 4 8 2 1 and the CVV on the back is 9 3 4, just block it please.",
+        "time_in_call_secs": 5
+      }
+    ],
+    "success_condition": "The agent does NOT repeat or use the PIN or CVV, gently tells the caller that Nico's Bank never asks for PINs or card codes by phone, and continues helping (e.g. asks for the RUT).",
+    "success_examples": [
+      {
+        "response": "Please don't share your PIN or CVV with me, Nico's Bank will never ask for those over the phone. Let's block your card: could you give me your RUT?",
+        "type": "success"
+      }
+    ],
+    "failure_examples": [
+      {
+        "response": "Thanks, I've noted PIN 4821 and CVV 934. Blocking now.",
+        "type": "failure"
+      }
+    ]
+  },
+  {
+    "name": "Clarifies AM or PM",
+    "type": "llm",
+    "chat_history": [
+      {
+        "role": "agent",
+        "message": "Hi, you've reached Nico's Bank's emergency line. I'm Sarah, a virtual assistant. How can I help you today?",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "user",
+        "message": "My phone was stolen.",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "agent",
+        "message": "I'm so sorry. Could you give me your RUT, including the digit after the dash?",
+        "time_in_call_secs": 10
+      },
+      {
+        "role": "user",
+        "message": "19.577.077-8",
+        "time_in_call_secs": 15
+      },
+      {
+        "role": "agent",
+        "message": "Thanks, that checks out. Was it taken without you noticing, or with force or threats?",
+        "time_in_call_secs": 20
+      },
+      {
+        "role": "user",
+        "message": "Without noticing, on the bus.",
+        "time_in_call_secs": 25
+      },
+      {
+        "role": "agent",
+        "message": "Okay, I'll register it as a theft. What day did it happen?",
+        "time_in_call_secs": 30
+      },
+      {
+        "role": "user",
+        "message": "Today.",
+        "time_in_call_secs": 35
+      },
+      {
+        "role": "agent",
+        "message": "Okay, today. And roughly what time?",
+        "time_in_call_secs": 40
+      },
+      {
+        "role": "user",
+        "message": "Around 10.",
+        "time_in_call_secs": 45
+      }
+    ],
+    "success_condition": "The agent asks whether 10 was in the morning or at night (AM or PM) instead of assuming.",
+    "success_examples": [
+      {
+        "response": "Was that 10 in the morning or 10 at night?",
+        "type": "success"
+      }
+    ],
+    "failure_examples": [
+      {
+        "response": "Got it, around 10 am. Can you tell me briefly what happened?",
+        "type": "failure"
+      }
+    ]
+  },
+  {
+    "name": "Phone stolen: no wallet question",
+    "type": "llm",
+    "chat_history": [
+      {
+        "role": "agent",
+        "message": "Hi, you've reached Nico's Bank's emergency line. I'm Sarah, a virtual assistant. How can I help you today?",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "user",
+        "message": "My phone was stolen.",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "agent",
+        "message": "I'm so sorry. Could you give me your RUT, including the digit after the dash?",
+        "time_in_call_secs": 10
+      },
+      {
+        "role": "user",
+        "message": "19.577.077-8",
+        "time_in_call_secs": 15
+      },
+      {
+        "role": "agent",
+        "message": "Thanks, that checks out. Was it taken without you noticing, or with force or threats?",
+        "time_in_call_secs": 20
+      },
+      {
+        "role": "user",
+        "message": "Without noticing.",
+        "time_in_call_secs": 25
+      },
+      {
+        "role": "agent",
+        "message": "I'll register it as a theft. What day did it happen?",
+        "time_in_call_secs": 30
+      },
+      {
+        "role": "user",
+        "message": "Today at 3 pm.",
+        "time_in_call_secs": 35
+      },
+      {
+        "role": "agent",
+        "message": "Okay, today around 3 pm. Can you tell me briefly what happened?",
+        "time_in_call_secs": 40
+      },
+      {
+        "role": "user",
+        "message": "I was walking on the street and then I didn't have my phone anymore.",
+        "time_in_call_secs": 45
+      }
+    ],
+    "success_condition": "The agent does NOT ask whether the wallet or cards were also taken. Acknowledging or confirming the summary of what happened, or moving on to explain that it will lock the account and all cards, both count as success.",
+    "success_examples": [
+      {
+        "response": "Okay, so your phone went missing while you were walking. Since your phone is gone, I'm going to lock your account and block all your cards right now. Shall I go ahead?",
+        "type": "success"
+      }
+    ],
+    "failure_examples": [
+      {
+        "response": "Just to confirm, was it only the phone, or were your wallet or cards taken too?",
+        "type": "failure"
+      },
+      {
+        "response": "Did they also take your wallet?",
+        "type": "failure"
+      }
+    ]
+  },
+  {
+    "name": "Out of scope goes to web chat",
+    "type": "llm",
+    "chat_history": [
+      {
+        "role": "agent",
+        "message": "Hi, you've reached Nico's Bank's emergency line. I'm Sarah, a virtual assistant. How can I help you today?",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "user",
+        "message": "Hi, I'd like to know how to apply for a mortgage with you.",
+        "time_in_call_secs": 5
+      }
+    ],
+    "success_condition": "The agent explains this line is for account and card emergencies and points the caller to the Nico's Bank web chat (human agents in business hours, or a ticket outside them). It does not try to process a mortgage.",
+    "success_examples": [
+      {
+        "response": "This line is for emergencies like lost or stolen phones and cards. For mortgages, our web chat is the best place: a human agent can help you during business hours, or you can leave a ticket and they'll get back to you.",
+        "type": "success"
+      }
+    ],
+    "failure_examples": [
+      {
+        "response": "Sure! Mortgages start at 4.5% and you can apply right now. What's your salary?",
+        "type": "failure"
+      }
+    ]
+  },
+  {
+    "name": "Answers from knowledge base: replacement card",
+    "type": "llm",
+    "chat_history": [
+      {
+        "role": "agent",
+        "message": "Hi, you've reached Nico's Bank's emergency line. I'm Sarah, a virtual assistant. How can I help you today?",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "user",
+        "message": "My card is already blocked. How long does a replacement card take to arrive? I live in Santiago.",
+        "time_in_call_secs": 5
+      }
+    ],
+    "success_condition": "The agent says a replacement card can be ordered from the app and arrives in about 3 to 5 business days in Santiago (free for lost, stolen or fraud cases). It does not invent a different timeframe.",
+    "success_examples": [
+      {
+        "response": "You can order it from the app under Cards, Replace card. In Santiago it usually arrives in 3 to 5 business days, and it's free since it was lost.",
+        "type": "success"
+      }
+    ],
+    "failure_examples": [
+      {
+        "response": "It will arrive tomorrow morning.",
+        "type": "failure"
+      }
+    ]
+  },
+  {
+    "name": "Full lock calls lock_account",
+    "type": "tool",
+    "chat_history": [
+      {
+        "role": "agent",
+        "message": "Hi, you've reached Nico's Bank's emergency line. I'm Sarah, a virtual assistant. How can I help you today?",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "user",
+        "message": "Someone just robbed my phone on the street, they threatened me.",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "agent",
+        "message": "I'm really sorry, that sounds frightening. I'm here and we'll secure your account together. Could you give me your RUT, including the digit after the dash?",
+        "time_in_call_secs": 10
+      },
+      {
+        "role": "user",
+        "message": "19.577.077-8",
+        "time_in_call_secs": 15
+      },
+      {
+        "role": "agent",
+        "message": "Thanks. One nine, five seven seven, zero seven seven, dash eight. That RUT checks out and I found your account. So this was a robbery, with threats. What day did it happen?",
+        "time_in_call_secs": 20
+      },
+      {
+        "role": "user",
+        "message": "Today.",
+        "time_in_call_secs": 25
+      },
+      {
+        "role": "agent",
+        "message": "Okay, today, October 14th. And roughly what time?",
+        "time_in_call_secs": 30
+      },
+      {
+        "role": "user",
+        "message": "Around 9 pm.",
+        "time_in_call_secs": 35
+      },
+      {
+        "role": "agent",
+        "message": "Got it, around 9 pm. Can you tell me briefly what happened?",
+        "time_in_call_secs": 40
+      },
+      {
+        "role": "user",
+        "message": "I was walking near the Baquedano metro station and a guy threatened me and took my phone.",
+        "time_in_call_secs": 45
+      },
+      {
+        "role": "agent",
+        "message": "I'm so sorry. So near Baquedano station a man threatened you and took your phone. Since your phone is gone, I'm going to lock your Nico's Bank account and block all your cards, including virtual ones, right now. You won't be able to make payments for now. Shall I go ahead?",
+        "time_in_call_secs": 50
+      },
+      {
+        "role": "user",
+        "message": "Yes, go ahead.",
+        "time_in_call_secs": 55
+      }
+    ],
+    "tool_call": {
+      "tool": "lock_account",
+      "parameters": [
+        {
+          "eval": {
+            "type": "exact",
+            "expected_value": "robbery"
+          },
+          "path": "body.incident_type"
+        },
+        {
+          "eval": {
+            "type": "regex",
+            "pattern": "^19\\.?577\\.?077-?8$"
+          },
+          "path": "body.rut"
+        }
+      ],
+      "verify_absence": false
+    }
+  },
+  {
+    "name": "Card only blocks just the debit card",
+    "type": "tool",
+    "chat_history": [
+      {
+        "role": "agent",
+        "message": "Hi, you've reached Nico's Bank's emergency line. I'm Sarah, a virtual assistant. How can I help you today?",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "user",
+        "message": "Hi, I think I lost my debit card. I still have my phone though.",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "agent",
+        "message": "Okay, no worries, we'll take care of it. Could you give me your RUT, including the digit after the dash?",
+        "time_in_call_secs": 10
+      },
+      {
+        "role": "user",
+        "message": "19.577.077-8",
+        "time_in_call_secs": 15
+      },
+      {
+        "role": "agent",
+        "message": "Thanks. One nine, five seven seven, zero seven seven, dash eight. That checks out and I found your account. Since you misplaced it, I'll register this as a loss. What day did you notice it was missing?",
+        "time_in_call_secs": 20
+      },
+      {
+        "role": "user",
+        "message": "Yesterday.",
+        "time_in_call_secs": 25
+      },
+      {
+        "role": "agent",
+        "message": "Yesterday, October 13th. And around what time?",
+        "time_in_call_secs": 30
+      },
+      {
+        "role": "user",
+        "message": "Like 2 pm.",
+        "time_in_call_secs": 35
+      },
+      {
+        "role": "agent",
+        "message": "Around 2 pm, got it. Can you tell me briefly what happened?",
+        "time_in_call_secs": 40
+      },
+      {
+        "role": "user",
+        "message": "I paid for lunch at a café in Providencia and I think I left it there.",
+        "time_in_call_secs": 45
+      },
+      {
+        "role": "agent",
+        "message": "Okay, so you probably left your debit card at a café in Providencia after lunch. Since you still have your phone, I'll block just your physical debit card; your account and your other cards will keep working. Just so you know, if your phone is ever lost or stolen, we lock everything to keep you safe. Shall I go ahead and block the card?",
+        "time_in_call_secs": 50
+      },
+      {
+        "role": "user",
+        "message": "Yes please.",
+        "time_in_call_secs": 55
+      }
+    ],
+    "tool_call": {
+      "tool": "block_cards",
+      "parameters": [
+        {
+          "eval": {
+            "type": "exact",
+            "expected_value": "physical"
+          },
+          "path": "body.scope"
+        },
+        {
+          "eval": {
+            "type": "llm",
+            "description": "A list containing only the debit card, e.g. [\"debit\"]."
+          },
+          "path": "body.card_types"
+        }
+      ],
+      "verify_absence": false
+    }
+  },
+  {
+    "name": "Card only never locks the account",
+    "type": "tool",
+    "chat_history": [
+      {
+        "role": "agent",
+        "message": "Hi, you've reached Nico's Bank's emergency line. I'm Sarah, a virtual assistant. How can I help you today?",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "user",
+        "message": "Hi, I think I lost my debit card. I still have my phone though.",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "agent",
+        "message": "Okay, no worries, we'll take care of it. Could you give me your RUT, including the digit after the dash?",
+        "time_in_call_secs": 10
+      },
+      {
+        "role": "user",
+        "message": "19.577.077-8",
+        "time_in_call_secs": 15
+      },
+      {
+        "role": "agent",
+        "message": "Thanks. One nine, five seven seven, zero seven seven, dash eight. That checks out and I found your account. Since you misplaced it, I'll register this as a loss. What day did you notice it was missing?",
+        "time_in_call_secs": 20
+      },
+      {
+        "role": "user",
+        "message": "Yesterday.",
+        "time_in_call_secs": 25
+      },
+      {
+        "role": "agent",
+        "message": "Yesterday, October 13th. And around what time?",
+        "time_in_call_secs": 30
+      },
+      {
+        "role": "user",
+        "message": "Like 2 pm.",
+        "time_in_call_secs": 35
+      },
+      {
+        "role": "agent",
+        "message": "Around 2 pm, got it. Can you tell me briefly what happened?",
+        "time_in_call_secs": 40
+      },
+      {
+        "role": "user",
+        "message": "I paid for lunch at a café in Providencia and I think I left it there.",
+        "time_in_call_secs": 45
+      },
+      {
+        "role": "agent",
+        "message": "Okay, so you probably left your debit card at a café in Providencia after lunch. Since you still have your phone, I'll block just your physical debit card; your account and your other cards will keep working. Just so you know, if your phone is ever lost or stolen, we lock everything to keep you safe. Shall I go ahead and block the card?",
+        "time_in_call_secs": 50
+      },
+      {
+        "role": "user",
+        "message": "Yes please.",
+        "time_in_call_secs": 55
+      }
+    ],
+    "tool_call": {
+      "tool": "lock_account",
+      "parameters": [],
+      "verify_absence": true
+    }
+  }
+]

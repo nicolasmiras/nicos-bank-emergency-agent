@@ -8,6 +8,16 @@
     "end_call",
     "language_detection"
   ],
+  "knowledge_base": [
+    {
+      "name": "Nico's Bank - Emergency Line Policies",
+      "usage_mode": "auto"
+    }
+  ],
+  "dynamic_variables": {
+    "channel": "elevenlabs_dashboard",
+    "device_type": "unknown"
+  },
   "tts": {
     "model_id": "eleven_v4_turbo",
     "voice_id": "lUTamkMw7gOzZbFIwmq4",
@@ -35,6 +45,16 @@
     "source_id": "office1",
     "volume": 0.1,
     "crossfade_loop": true
+  },
+  "guardrails": {
+    "focus": true,
+    "prompt_injection": true,
+    "custom": [
+      {
+        "name": "Never collect secret credentials",
+        "prompt": "Block any agent response that asks the caller for, repeats back, or confirms a password, PIN, one-time code (OTP), full card number or CVV."
+      }
+    ]
   },
   "data_collection": {
     "incident_type": {

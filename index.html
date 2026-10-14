@@ -510,6 +510,10 @@
         agentId: AGENT_ID,
         connectionType: "webrtc",
         clientTools,
+        dynamicVariables: {
+          channel: "nicos_bank_website",
+          device_type: matchMedia("(pointer: coarse)").matches ? "mobile" : "desktop",
+        },
         onConnect: () => { setStatus("Connected", "listening"); startTimer(); },
         onDisconnect: () => showEnded(),
         onError: (err) => { console.error(err); setStatus("Something went wrong. Please try again."); },
