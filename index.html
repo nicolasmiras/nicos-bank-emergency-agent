@@ -466,11 +466,21 @@
     }, 500);
   }
 
+  // Hide secrets the caller might dictate (card numbers, PINs, CVVs, codes,
+  // passwords) in the on-screen transcript. RUTs, dates and times stay visible.
+  const SECRET_WORDS = "pin|cvv|cvc|security code|code|otp|password|passcode|clave|contraseña|código";
+  function maskSensitive(text) {
+    return text
+      .replace(/\b(?:\d[ -]?){12,18}\d\b/g, "[card number hidden]")
+      .replace(new RegExp(`(\\b(?:${SECRET_WORDS})\\b[^\\d]{0,20})((?:\\d[ -]?){2,7}\\d)`, "gi"),
+               (_, label) => `${label}•••• [hidden]`);
+  }
+
   function addMessage(text, who) {
     if (!text) return;
     const el = document.createElement("div");
     el.className = `msg ${who}`;
-    el.textContent = text;
+    el.textContent = maskSensitive(text);
     transcript.appendChild(el);
     transcript.scrollTop = transcript.scrollHeight;
   }
