@@ -32,9 +32,14 @@ The customer can regain access 1 hour after the lock, once they pass an identity
 
 Every emergency call creates an incident ticket for the Fraud & Security team. For fraud cases, a specialist contacts the customer within 48 hours to review unrecognized transactions. Disputed charges are reviewed within 10 business days, as required by Chilean regulation.
 
-## Web chat and human agents
+## Chat and human agents
 
-Customers can reach a human agent through the Nico's Bank web chat Monday to Friday, 9:00 to 19:00, and Saturdays 10:00 to 14:00 (Chile time). Outside those hours they can open a ticket through the same chat, and the team replies as soon as someone is available.
+The emergency line only handles account and card emergencies. For anything else, customers can chat with Nico's Bank in two ways:
+
+- The chat inside the Nico's Bank app (Profile > Help > Chat with us).
+- The web chat on the Nico's Bank website, on the same page as the emergency line.
+
+A human agent answers either chat Monday to Friday, 9:00 to 19:00, and Saturdays 10:00 to 14:00 (Chile time). Outside those hours customers can open a ticket through either chat, and the team replies as soon as someone is available.
 
 ## What Nico's Bank will never ask for
 

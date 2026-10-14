@@ -171,7 +171,7 @@
     ]
   },
   {
-    "name": "Out of scope goes to web chat",
+    "name": "Out of scope goes to in-app or web chat",
     "type": "llm",
     "chat_history": [
       {
@@ -185,10 +185,10 @@
         "time_in_call_secs": 5
       }
     ],
-    "success_condition": "The agent explains this line is for account and card emergencies and points the caller to the Nico's Bank web chat (human agents in business hours, or a ticket outside them). It does not try to process a mortgage.",
+    "success_condition": "The agent explains this line is only for emergencies and points the caller to the chat inside the Nico's Bank app or the web chat on the Nico's Bank website (human agents in business hours, or a ticket outside them). It does not try to process a mortgage.",
     "success_examples": [
       {
-        "response": "This line is for emergencies like lost or stolen phones and cards. For mortgages, our web chat is the best place: a human agent can help you during business hours, or you can leave a ticket and they'll get back to you.",
+        "response": "This line is just for emergencies like lost or stolen phones and cards. For mortgages, you can chat with us in the Nico's Bank app or on our website: a human agent can help during business hours, or you can leave a ticket.",
         "type": "success"
       }
     ],
