@@ -9,11 +9,14 @@ Run: python3 mock_core.py  (listens on :8787, no dependencies)
 import json
 import random
 import threading
+import urllib.error
+import urllib.request
 from datetime import datetime, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 PORT = 8787
+ELEVENLABS_API = "https://api.elevenlabs.io"
 CHILE = timezone(timedelta(hours=-3))
 
 # Seed customers, keyed by normalized RUT (no dots, uppercase check digit).
@@ -147,10 +150,28 @@ def submit_csat(body):
         return 400, {"success": False, "message": "score must be an integer from 1 to 5."}
     if not 1 <= score <= 5:
         return 400, {"success": False, "message": "score must be an integer from 1 to 5."}
+    comment = body.get("comment") or ""
     with LOCK:
-        CSAT.append({"score": score, "comment": body.get("comment") or "", "at": now().strftime("%H:%M"),
+        CSAT.append({"score": score, "comment": comment, "at": now().strftime("%H:%M"),
                      "rut": normalize_rut(body.get("rut")) if body.get("rut") else None})
-    return 201, {"success": True, "message": "Thanks, feedback recorded."}
+    # Mirror the score into ElevenLabs' native CSAT for this conversation.
+    synced = forward_rating_to_elevenlabs(body.get("conversation_id"), score, comment)
+    return 201, {"success": True, "message": "Thanks, feedback recorded.", "elevenlabs_csat_synced": synced}
+
+
+def forward_rating_to_elevenlabs(conversation_id, score, comment):
+    if not conversation_id:
+        return False
+    req = urllib.request.Request(
+        f"{ELEVENLABS_API}/v1/convai/conversations/{conversation_id}/feedback",
+        data=json.dumps({"rating": score, "comment": comment}).encode(),
+        headers={"Content-Type": "application/json"}, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=5) as r:
+            return 200 <= r.status < 300
+    except (urllib.error.URLError, TimeoutError) as e:
+        print(f"ElevenLabs CSAT sync failed: {e}")
+        return False
 
 
 ROUTES = {
