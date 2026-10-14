@@ -10,7 +10,7 @@ Nico's Bank is a fictional Chilean digital bank. Everything behind the agent is 
 | **Persona** | James (EN), Catalina (ES, Chilean) via language preset |
 | **Tools** | 1 client tool + 5 webhook tools + `end_call` and `language_detection` |
 | **Knowledge base** | Nico's Bank emergency line policies |
-| **Quality** | 12 agent tests (all passing), 6 evaluation criteria, 10 data collection fields, native guardrails |
+| **Quality** | 14 agent tests (all passing), 6 evaluation criteria, 10 data collection fields, native guardrails |
 
 ## Golden path
 
@@ -25,7 +25,7 @@ Nico's Bank is a fictional Chilean digital bank. Everything behind the agent is 
 5. Webhooks hit the bank's services: `lock_account` → `block_cards` → `create_incident`.
 6. He confirms the outcome: account and cards locked, ticket number read digit by digit, access back **in 1 hour after an identity validation** (so the next person using the account is really the customer), and cards can then be unblocked from the app.
 7. Follow-up questions (replacement cards, unblocking, police report) are answered from the **knowledge base**.
-8. **CSAT**: one 1-5 question plus an optional comment, sent with `submit_csat` and mirrored into ElevenLabs' native CSAT, then `end_call`.
+8. **CSAT**: one 1-5 question; only a score of 1 to 3 gets a "what could we have done better?" follow-up. Sent with `submit_csat` and mirrored into ElevenLabs' native CSAT, then `end_call`.
 
 Anything that isn't an emergency (e.g. a mortgage question) is routed to the **chat inside the Nico's Bank app or the web chat on the website**: human agents during business hours, a ticket outside them.
 
@@ -98,7 +98,7 @@ Every webhook also receives the `system__conversation_id` dynamic variable, so e
 |---|---|
 | `incident_type`, `incident_date`, `incident_time`, `incident_description`, `customer_rut`, `protection_level`, `account_locked`, `ticket_id`, `csat_score`, `csat_comment` | Collected required info · No sensitive data requested · Empathetic tone · Consent and clear closure · Right protection level · CSAT survey handled |
 
-**Tested.** 12 ElevenLabs agent tests run against every change, all passing:
+**Tested.** 14 ElevenLabs agent tests run against every change, all passing:
 
 | Test | Type | Checks |
 |---|---|---|
@@ -112,6 +112,8 @@ Every webhook also receives the `system__conversation_id` dynamic variable, so e
 | Card only never locks the account | Tool call | `lock_account` is not called |
 | Consent mentions 1-hour recovery | Response | The caller hears the lock is temporary before agreeing |
 | Gentle CSAT survey | Response | Warm rating ask; no "before you go", no "skip it", no "anything else" |
+| Low CSAT asks what to improve | Response | Score 1-3 gets "Anything we could have done better?" |
+| High CSAT gets no follow-up question | Tool call | Score 4-5 is recorded with `submit_csat` straight away |
 | Transaction issue: asks if they still have the phone | Response | Doesn't start the lock flow or ask for the RUT |
 | Transaction issue with phone in hand goes to chats | Response | Routes to the in-app or web chat, locks nothing |
 
@@ -157,7 +159,7 @@ agent/
   tools.json        Tool definitions as configured in ElevenLabs
   agent_config.json Voice, turn-taking, guardrails, knowledge base, data collection and evaluation
   knowledge_base.md Policies document attached to the agent
-  tests.json        The 12 agent tests
+  tests.json        The 14 agent tests
 ```
 
 ## In production

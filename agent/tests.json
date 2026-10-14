@@ -427,6 +427,104 @@
     ]
   },
   {
+    "name": "Low CSAT asks what to improve",
+    "type": "llm",
+    "chat_history": [
+      {
+        "role": "agent",
+        "message": "Hi, you've reached Nico's Bank's emergency line. I'm Sarah, a virtual assistant. How can I help you today?",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "user",
+        "message": "My phone was stolen, can you lock everything?",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "agent",
+        "message": "Okay, it's done. Your account and your three cards are now locked, and your ticket number ends in 7-1-8-8. From about 8:40 you can get back in after a quick identity check.",
+        "time_in_call_secs": 10
+      },
+      {
+        "role": "user",
+        "message": "Okay.",
+        "time_in_call_secs": 15
+      },
+      {
+        "role": "agent",
+        "message": "I'm really glad we got everything secured for you. If you have a second, how would you rate the help you got today, from 1 to 5?",
+        "time_in_call_secs": 20
+      },
+      {
+        "role": "user",
+        "message": "Two.",
+        "time_in_call_secs": 25
+      }
+    ],
+    "success_condition": "The caller gave a low score (2). The agent thanks them for the honesty without getting defensive and asks what could have been done better.",
+    "success_examples": [
+      {
+        "response": "Thanks for being honest with me. Anything we could have done better?",
+        "type": "success"
+      }
+    ],
+    "failure_examples": [
+      {
+        "response": "Thank you so much! Take care, goodbye.",
+        "type": "failure"
+      }
+    ]
+  },
+  {
+    "name": "High CSAT gets no follow-up question",
+    "type": "tool",
+    "chat_history": [
+      {
+        "role": "agent",
+        "message": "Hi, you've reached Nico's Bank's emergency line. I'm Sarah, a virtual assistant. How can I help you today?",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "user",
+        "message": "My phone was stolen, can you lock everything?",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "agent",
+        "message": "Okay, it's done. Your account and your three cards are now locked, and your ticket number ends in 7-1-8-8. From about 8:40 you can get back in after a quick identity check.",
+        "time_in_call_secs": 10
+      },
+      {
+        "role": "user",
+        "message": "Okay.",
+        "time_in_call_secs": 15
+      },
+      {
+        "role": "agent",
+        "message": "I'm really glad we got everything secured for you. If you have a second, how would you rate the help you got today, from 1 to 5?",
+        "time_in_call_secs": 20
+      },
+      {
+        "role": "user",
+        "message": "Five.",
+        "time_in_call_secs": 25
+      }
+    ],
+    "tool_call": {
+      "tool": "submit_csat",
+      "parameters": [
+        {
+          "eval": {
+            "type": "exact",
+            "expected_value": "5"
+          },
+          "path": "body.score"
+        }
+      ],
+      "verify_absence": false
+    }
+  },
+  {
     "name": "Full lock calls lock_account",
     "type": "tool",
     "chat_history": [
