@@ -7,22 +7,27 @@ Nico's Bank is a fictional Chilean digital bank. Everything behind the agent is 
 | | |
 |---|---|
 | **Agent** | [Nico's Bank: Emergency Line](https://elevenlabs.io/app/agents/agents/agent_0101m4y1ss4gekrb34sbfcnf2cm2) |
-| **Voice** | Sarah (EN), Catalina (ES, Chilean) via language preset |
+| **Persona** | James (EN), Catalina (ES, Chilean) via language preset |
 | **Tools** | 1 client tool + 5 webhook tools + `end_call` and `language_detection` |
+| **Knowledge base** | Nico's Bank emergency line policies |
+| **Quality** | 8 agent tests (all passing), 6 evaluation criteria, 10 data collection fields, native guardrails |
 
 ## Golden path
 
 1. Caller clicks **Call emergency line** on the Nico's Bank site and says their phone was stolen.
-2. Sarah reassures them and collects the **mandatory details**, one question at a time:
+2. James reassures them and collects the **mandatory details**, one question at a time:
    - **RUT** (Chilean national ID), read back and checked with `validate_rut`.
-   - **Incident type**: theft, robbery, loss or fraud. She explains the difference if the caller isn't sure.
-   - **Date** ("yesterday" is converted to a real date) and **time** (she always clarifies AM/PM).
+   - **Incident type**: theft, robbery, loss or fraud. He explains the difference if the caller isn't sure.
+   - **Date** ("yesterday" is converted to a real date) and **time** (he always clarifies AM/PM).
    - **Short description**, summarized back in one sentence.
 3. `lookup_customer` confirms the RUT belongs to a customer. No date of birth or other personal question is asked.
-4. She picks the **protection level** and asks for explicit consent.
+4. He picks the **protection level** and asks for explicit consent.
 5. Webhooks hit the bank's services: `lock_account` → `block_cards` → `create_incident`.
-6. She confirms the outcome: account and cards locked, ticket number read digit by digit, access back **in 1 hour after an identity validation** (so the next person using the account is really the customer), and cards can then be unblocked from the app.
-7. **CSAT**: one 1-5 question plus an optional comment, sent with `submit_csat`, then `end_call`.
+6. He confirms the outcome: account and cards locked, ticket number read digit by digit, access back **in 1 hour after an identity validation** (so the next person using the account is really the customer), and cards can then be unblocked from the app.
+7. Follow-up questions (replacement cards, unblocking, police report) are answered from the **knowledge base**.
+8. **CSAT**: one 1-5 question plus an optional comment, sent with `submit_csat` and mirrored into ElevenLabs' native CSAT, then `end_call`.
+
+Anything that isn't an emergency (e.g. a mortgage question) is routed to the **chat inside the Nico's Bank app or the web chat on the website**: human agents during business hours, a ticket outside them.
 
 The back-office dashboard shows every webhook (request + response) and the account and cards turning from *active* to *locked* live during the call.
 
@@ -60,10 +65,10 @@ ElevenLabs calls the webhooks from its own servers, so the local backend is expo
 | `lock_account` | Webhook | Locks the account and returns `unlock_eligible_at` (+1h) and `unlock_requirement: identity_validation`. |
 | `block_cards` | Webhook | `scope: "all"` blocks every card including virtual; `scope: "physical"` + `card_types` blocks only the lost card. |
 | `create_incident` | Webhook | Registers the case for the Fraud & Security team and returns a ticket id plus a `spoken_ticket_id` for TTS. |
-| `submit_csat` | Webhook | Stores the 1-5 score and optional comment. |
+| `submit_csat` | Webhook | Stores the 1-5 score and optional comment, and forwards them to the conversation's native CSAT in ElevenLabs. |
 | `end_call`, `language_detection` | System | Hang up when done; switch to Spanish (Catalina's voice) when the caller speaks Spanish. |
 
-Every webhook also receives the `system__conversation_id` dynamic variable, so each backend event can be traced back to the conversation.
+Every webhook also receives the `system__conversation_id` dynamic variable, so each backend event can be traced back to the conversation. The landing page also passes `channel` and `device_type` as dynamic variables, visible on each conversation in ElevenLabs.
 
 ## Design decisions
 
@@ -71,7 +76,13 @@ Every webhook also receives the `system__conversation_id` dynamic variable, so e
 - **Full lock** (phone lost or stolen, or fraud): lock the account and **all** cards. The agent does *not* ask whether the wallet was taken too, because the answer doesn't change anything.
 - **Card only** (lost a physical card, still has the phone): block just that card and keep the account working, while telling the caller that a lost phone would mean locking everything.
 
-**Guardrails.** The agent never asks for or accepts passwords, PINs, OTPs, full card numbers or CVV, and stops callers who start sharing them. It never locks anything without all required details plus explicit consent, never invents ticket numbers or timeframes, and is honest when a tool fails.
+**Guardrails.** The agent never asks for or accepts passwords, PINs, OTPs, full card numbers or CVV, and stops callers who start sharing them. It never locks anything without all required details plus explicit consent, never invents ticket numbers or timeframes, and is honest when a tool fails. On top of the prompt:
+- Native ElevenLabs guardrails: **focus** and **prompt injection** protection.
+- A custom **"Never collect secret credentials"** guardrail in blocking mode with a **retry** action: if a response would ask for or repeat a secret, the agent rephrases it and keeps helping instead of hanging up. (An earlier `end_call` version flagged a RUT request as a false positive and dropped a live call, so a bank emergency line should never hang up on a guardrail.)
+- Content filters for violence and self-harm are intentionally off: robbery victims describe threats, and ending those calls would be the worst outcome.
+- The live transcript on the landing page masks dictated PINs, CVVs, codes and card numbers, while RUTs, dates and last-4 digits stay visible.
+
+**Knowledge base.** Policies (replacement cards, unblocking, chat hours, fraud follow-up, police reports) live in a document instead of the prompt, so answers stay grounded and the prompt stays focused on the flow.
 
 **Sounding human.** Patient turn-taking, slightly slower speech, soft fillers while tools run ("Okay, locking everything now, just a second..."), short one-question turns, and quiet office ambience.
 
@@ -80,6 +91,19 @@ Every webhook also receives the `system__conversation_id` dynamic variable, so e
 | Data collection | Evaluation criteria |
 |---|---|
 | `incident_type`, `incident_date`, `incident_time`, `incident_description`, `customer_rut`, `protection_level`, `account_locked`, `ticket_id`, `csat_score`, `csat_comment` | Collected required info · No sensitive data requested · Empathetic tone · Consent and clear closure · Right protection level · CSAT survey handled |
+
+**Tested.** 8 ElevenLabs agent tests run against every change, all passing:
+
+| Test | Type | Checks |
+|---|---|---|
+| Refuses PIN and CVV | Response | Doesn't repeat them; says the bank never asks for them |
+| Clarifies AM or PM | Response | "Around 10" triggers "morning or night?" |
+| Phone stolen: no wallet question | Response | Doesn't ask whether the wallet was taken too |
+| Out of scope goes to in-app or web chat | Response | Routes a mortgage question to the chats |
+| Answers from knowledge base | Response | Replacement card: 3 to 5 business days in Santiago |
+| Full lock calls lock_account | Tool call | `incident_type: robbery` and the right RUT |
+| Card only blocks just the debit card | Tool call | `scope: physical`, `card_types: ["debit"]` |
+| Card only never locks the account | Tool call | `lock_account` is not called |
 
 ## Run it locally
 
@@ -107,7 +131,7 @@ Open the landing page, click **Call emergency line**, and use one of the test cu
 
 Try `12.345.678-K` to see RUT validation reject a wrong check digit. Use **Reset demo** on the dashboard between runs.
 
-> If you test the agent directly from the ElevenLabs dashboard instead of the landing page, `validate_rut` has no client to run on. If the tunnel isn't running, the webhook tools will fail and the agent will say so and point to the web chat.
+> If you test the agent directly from the ElevenLabs dashboard instead of the landing page, `validate_rut` has no client to run on. If the tunnel isn't running, the webhook tools will fail and the agent will say so and point to the in-app or web chat.
 
 ## Repository
 
@@ -117,10 +141,13 @@ mock_core.py        Mock core banking API (no dependencies) and dashboard server
 dashboard.html      Live back-office: customers, CSAT, webhook log
 setup_tools.py      Creates or updates the webhook tools and attaches them to the agent
 start_tunnel.sh     Cloudflare quick tunnel + setup_tools.py
+export_agent.py     Exports the live agent configuration into agent/
 agent/
   system_prompt.md  Full system prompt
   tools.json        Tool definitions as configured in ElevenLabs
-  agent_config.json Voice, turn-taking, data collection and evaluation settings
+  agent_config.json Voice, turn-taking, guardrails, knowledge base, data collection and evaluation
+  knowledge_base.md Policies document attached to the agent
+  tests.json        The 8 agent tests
 ```
 
 ## In production
@@ -129,4 +156,5 @@ agent/
 - Run the RUT check server-side as well, and add risk signals (caller ID, device, recent activity) to `lookup_customer`.
 - Connect a phone number (Twilio or SIP trunk) for real inbound calls.
 - Use the post-call webhook to push transcripts, extracted data and CSAT to the CRM or data warehouse.
-- Turn the evaluation criteria into a regression suite with ElevenLabs agent tests before every prompt change.
+- Turn on ElevenLabs conversation history redaction (enterprise) for passwords, card numbers, CVV and bank accounts, so stored transcripts are masked too, not just the live view.
+- Run the agent test suite in CI on every prompt or tool change, and add full simulation tests with mocked tool responses.
