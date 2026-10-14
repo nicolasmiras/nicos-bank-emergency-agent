@@ -31,7 +31,7 @@
     }
   },
   "turn": {
-    "turn_eagerness": "patient",
+    "turn_eagerness": "normal",
     "turn_timeout": 7.0,
     "soft_timeout": 2.5,
     "fillers": [
@@ -49,17 +49,12 @@
   "guardrails": {
     "focus": true,
     "prompt_injection": true,
-    "custom": [
-      {
-        "name": "Never collect secret credentials",
-        "prompt": "Trigger ONLY if the agent's response asks the caller to say a password, PIN, one-time code (OTP / verification code), the full 16-digit card number, or the CVV/security code, or if it repeats one of those back. Do NOT trigger for: asking for or reading back the caller's RUT (Chilean national ID, e.g. 19.577.077-8) or its check digit; dates, times, ticket numbers or the last 4 digits of a card; or the agent saying that Nico's Bank never asks for passwords, PINs, codes or card numbers."
-      }
-    ]
+    "custom": []
   },
   "data_collection": {
     "incident_type": {
       "type": "string",
-      "description": "One of: theft, robbery, loss, fraud. Empty if not an emergency.",
+      "description": "One of: theft, robbery, loss. Empty if the call was routed to the chats.",
       "enum": null,
       "is_system_provided": false,
       "dynamic_variable": "",
@@ -194,7 +189,7 @@
     },
     "protection_level": {
       "type": "string",
-      "description": "'full_lock' if the account and all cards were locked (phone lost/stolen or fraud), 'card_only' if only a physical card was blocked, empty if nothing was locked.",
+      "description": "'full_lock' if the phone was lost or stolen (account and all cards locked), 'card_only' if only a physical card was blocked, empty if the call was routed to the chats.",
       "enum": null,
       "is_system_provided": false,
       "dynamic_variable": "",
@@ -237,7 +232,7 @@
     {
       "id": "right_protection_level",
       "name": "Right protection level",
-      "goal": "Success if: when the phone was lost or stolen (or fraud), the agent locked the account and blocked ALL cards without asking whether the wallet or cards were also taken, and told the caller they can unblock the cards from the app once they recover the account; when only a physical card was lost and the caller still has their phone, it blocked only that card, did not lock the account, and mentioned that a lost/stolen phone would lock everything. Failure otherwise."
+      "goal": "Success if: when the phone was lost or stolen, the agent locked the account and blocked ALL cards without asking whether the wallet or cards were also taken; when only a physical card was lost and the caller still has their phone, it blocked only that card and did not lock the account; when the caller had another issue (e.g. a transaction) and still has their phone, it locked nothing and routed them to the in-app or web chat without collecting the RUT. Failure otherwise."
     }
   ]
 }

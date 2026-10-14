@@ -10,14 +10,14 @@ Nico's Bank is a fictional Chilean digital bank. Everything behind the agent is 
 | **Persona** | James (EN), Catalina (ES, Chilean) via language preset |
 | **Tools** | 1 client tool + 5 webhook tools + `end_call` and `language_detection` |
 | **Knowledge base** | Nico's Bank emergency line policies |
-| **Quality** | 10 agent tests (all passing), 6 evaluation criteria, 10 data collection fields, native guardrails |
+| **Quality** | 12 agent tests (all passing), 6 evaluation criteria, 10 data collection fields, native guardrails |
 
 ## Golden path
 
 1. Caller clicks **Call emergency line** on the Nico's Bank site and says their phone was stolen.
 2. James reassures them and collects the **mandatory details**, one question at a time:
    - **RUT** (Chilean national ID), read back and checked with `validate_rut`.
-   - **Incident type**: theft, robbery, loss or fraud. He explains the difference if the caller isn't sure.
+   - **Incident type**: theft, robbery or loss. He explains the difference if the caller isn't sure.
    - **Date** ("yesterday" is converted to a real date) and **time** (he always clarifies AM/PM).
    - **Short description**, summarized back in one sentence.
 3. `lookup_customer` confirms the RUT belongs to a customer. No date of birth or other personal question is asked.
@@ -76,13 +76,15 @@ Every webhook also receives the `system__conversation_id` dynamic variable, so e
 
 ## Design decisions
 
+**This line only locks.** It doesn't investigate transactions or offer other help. If a caller opens with something else (e.g. "a problem with a transaction"), James asks one question: *"Do you still have your phone with you?"* If not, it's a full lock. If they do, he routes them to the in-app or web chat without asking for the RUT. He also never asks "anything else I can help you with?".
+
 **Two protection levels.** The rule comes from how the product works: the phone *is* the bank.
-- **Full lock** (phone lost or stolen, or fraud): lock the account and **all** cards. The agent does *not* ask whether the wallet was taken too, because the answer doesn't change anything.
+- **Full lock** (phone lost or stolen): lock the account and **all** cards. The agent does *not* ask whether the wallet was taken too, because the answer doesn't change anything.
 - **Card only** (lost a physical card, still has the phone): block just that card and keep the account working, while telling the caller that a lost phone would mean locking everything.
 
 **Guardrails.** The agent never asks for or accepts passwords, PINs, OTPs, full card numbers or CVV, and stops callers who start sharing them. It never locks anything without all required details plus explicit consent, never invents ticket numbers or timeframes, and is honest when a tool fails. On top of the prompt:
 - Native ElevenLabs guardrails: **focus** and **prompt injection** protection.
-- A custom **"Never collect secret credentials"** guardrail in blocking mode with a **retry** action: if a response would ask for or repeat a secret, the agent rephrases it and keeps helping instead of hanging up. (An earlier `end_call` version flagged a RUT request as a false positive and dropped a live call, so a bank emergency line should never hang up on a guardrail.)
+- A custom "Never collect secret credentials" guardrail was tried and is **disabled**. With `end_call` it flagged a RUT read-back as a secret and dropped a live call; switched to blocking + `retry` it stopped the drops but added 1 to 3 seconds of silence before every reply, which made James feel stuck. The prompt rule, the "Refuses PIN and CVV" test and the "No sensitive data requested" evaluation cover it without the latency.
 - Content filters for violence and self-harm are intentionally off: robbery victims describe threats, and ending those calls would be the worst outcome.
 - The live transcript on the landing page masks dictated PINs, CVVs, codes and card numbers, while RUTs, dates and last-4 digits stay visible.
 
@@ -96,7 +98,7 @@ Every webhook also receives the `system__conversation_id` dynamic variable, so e
 |---|---|
 | `incident_type`, `incident_date`, `incident_time`, `incident_description`, `customer_rut`, `protection_level`, `account_locked`, `ticket_id`, `csat_score`, `csat_comment` | Collected required info · No sensitive data requested · Empathetic tone · Consent and clear closure · Right protection level · CSAT survey handled |
 
-**Tested.** 10 ElevenLabs agent tests run against every change, all passing:
+**Tested.** 12 ElevenLabs agent tests run against every change, all passing:
 
 | Test | Type | Checks |
 |---|---|---|
@@ -109,7 +111,9 @@ Every webhook also receives the `system__conversation_id` dynamic variable, so e
 | Card only blocks just the debit card | Tool call | `scope: physical`, `card_types: ["debit"]` |
 | Card only never locks the account | Tool call | `lock_account` is not called |
 | Consent mentions 1-hour recovery | Response | The caller hears the lock is temporary before agreeing |
-| Gentle CSAT survey | Response | Warm, optional rating ask instead of a blunt survey |
+| Gentle CSAT survey | Response | Warm rating ask; no "before you go", no "skip it", no "anything else" |
+| Transaction issue: asks if they still have the phone | Response | Doesn't start the lock flow or ask for the RUT |
+| Transaction issue with phone in hand goes to chats | Response | Routes to the in-app or web chat, locks nothing |
 
 ## Run it locally
 
@@ -153,7 +157,7 @@ agent/
   tools.json        Tool definitions as configured in ElevenLabs
   agent_config.json Voice, turn-taking, guardrails, knowledge base, data collection and evaluation
   knowledge_base.md Policies document attached to the agent
-  tests.json        The 10 agent tests
+  tests.json        The 12 agent tests
 ```
 
 ## In production

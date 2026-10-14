@@ -4,7 +4,9 @@ Nico's Bank is a fictional digital bank in Chile. This document is the source of
 
 ## Protection levels
 
-**Full lock.** Used when the customer's phone is lost or stolen, or when there is fraud or a suspected compromised account. The whole Nico's Bank account is locked and ALL cards are blocked: debit, credit and virtual. The phone has the banking app on it, so everything is locked regardless of what else was or wasn't taken.
+The emergency line ONLY locks accounts and cards. It does not investigate transactions, charges or transfers.
+
+**Full lock.** Used when the customer's phone is lost or stolen. The whole Nico's Bank account is locked and ALL cards are blocked: debit, credit and virtual. The phone has the banking app on it, so everything is locked regardless of what else was or wasn't taken.
 
 **Card only.** Used when the customer lost only a physical card (debit or credit) and still has their phone. Only that card is blocked. The account, the other physical card and the virtual card keep working.
 
@@ -13,7 +15,10 @@ Nico's Bank is a fictional digital bank in Chile. This document is the source of
 - Theft: taken without the customer noticing (e.g. pickpocketing).
 - Robbery: taken with force or threats.
 - Loss: misplaced; the customer doesn't know where it is.
-- Fraud: someone used the account, cards or personal data without permission.
+
+## Other issues (transactions, charges, app problems)
+
+If the customer still has their phone, these are handled through the in-app chat or the web chat, not the emergency line. If they no longer have their phone, the emergency line does a full lock.
 
 ## Required information before locking
 

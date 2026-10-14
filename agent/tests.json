@@ -323,25 +323,105 @@
       },
       {
         "role": "agent",
-        "message": "Okay, it's done. Your account and your three cards are now locked, and your ticket number ends in 7-1-8-8. Like I mentioned, from about 8:40 you can get back in after a quick identity check. Is there anything else I can help you with?",
+        "message": "Okay, it's done. Your account and your three cards are now locked, and your ticket number ends in 7-1-8-8. Like I mentioned, from about 8:40 you can get back in after a quick identity check, just to make sure it's really you.",
         "time_in_call_secs": 10
       },
       {
         "role": "user",
-        "message": "No, that's all, thanks.",
+        "message": "Okay, thanks.",
         "time_in_call_secs": 15
       }
     ],
-    "success_condition": "The agent eases into the satisfaction survey warmly (e.g. acknowledges that everything is secured), asks for a 1-5 rating in a light way and makes it clear it's optional. It does NOT open bluntly with 'Before you go, on a scale from 1 to 5'.",
+    "success_condition": "The agent eases into the satisfaction survey warmly (e.g. acknowledges that everything is secured) and asks for a 1-5 rating in a light way. It does NOT open bluntly with 'Before you go, on a scale from 1 to 5', does NOT say things like 'totally fine if you'd rather skip it', and does NOT ask 'is there anything else I can help you with'.",
     "success_examples": [
       {
-        "response": "I'm really glad we got everything secured for you. If you have a second, how would you rate the help you got today, from 1 to 5? Totally fine to skip it.",
+        "response": "I'm really glad we got everything secured for you. If you have a second, how would you rate the help you got today, from 1 to 5?",
         "type": "success"
       }
     ],
     "failure_examples": [
       {
         "response": "Before you go, on a scale from one to five, how satisfied are you with the help you got today?",
+        "type": "failure"
+      },
+      {
+        "response": "Is there anything else I can help you with tonight?",
+        "type": "failure"
+      },
+      {
+        "response": "How would you rate today's help from 1 to 5? Totally fine if you'd rather skip it.",
+        "type": "failure"
+      }
+    ]
+  },
+  {
+    "name": "Transaction issue: asks if they still have the phone",
+    "type": "llm",
+    "chat_history": [
+      {
+        "role": "agent",
+        "message": "Hi, you've reached Nico's Bank's emergency line. I'm Sarah, a virtual assistant. How can I help you today?",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "user",
+        "message": "Yeah, I have a problem with a transaction.",
+        "time_in_call_secs": 5
+      }
+    ],
+    "success_condition": "The agent does NOT start the lock flow and does NOT ask for the RUT. It asks whether the caller still has their phone with them (or, equivalently, explains this line only handles lost or stolen phones and cards and checks if their phone is missing).",
+    "success_examples": [
+      {
+        "response": "I can help if your phone is missing. Do you still have your phone with you?",
+        "type": "success"
+      }
+    ],
+    "failure_examples": [
+      {
+        "response": "I'm sorry to hear that. Could you give me your RUT, including the digit after the dash?",
+        "type": "failure"
+      },
+      {
+        "response": "That counts as fraud, and we'll get it secured. Let's lock your account.",
+        "type": "failure"
+      }
+    ]
+  },
+  {
+    "name": "Transaction issue with phone in hand goes to chats",
+    "type": "llm",
+    "chat_history": [
+      {
+        "role": "agent",
+        "message": "Hi, you've reached Nico's Bank's emergency line. I'm Sarah, a virtual assistant. How can I help you today?",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "user",
+        "message": "Yeah, I have a problem with a transaction.",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "agent",
+        "message": "Okay, I'll help you get to the right place. Do you still have your phone with you?",
+        "time_in_call_secs": 10
+      },
+      {
+        "role": "user",
+        "message": "Yes, I have it here. I saw a purchase I never made.",
+        "time_in_call_secs": 15
+      }
+    ],
+    "success_condition": "The agent explains this line only handles lost or stolen phones and cards, and routes the caller to the chat inside the Nico's Bank app or the web chat on the website. It does NOT ask for the RUT, does NOT lock anything and does NOT offer other help.",
+    "success_examples": [
+      {
+        "response": "Thanks for letting me know. This line only locks accounts and cards when a phone or card is lost or stolen. For a purchase you don't recognize, please reach us through the chat in the Nico's Bank app or the web chat on our website, where an agent can review it with you.",
+        "type": "success"
+      }
+    ],
+    "failure_examples": [
+      {
+        "response": "Okay, I'll lock your account now. What's your RUT?",
         "type": "failure"
       }
     ]
