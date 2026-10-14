@@ -12,7 +12,7 @@
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
-  header { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--line); }
+  header { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--line); }
   .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
   .mark { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #3b9bff, #0f4fb0); display: grid; place-items: center; font-size: 14px; }
   .brand small { color: var(--muted); font-weight: 500; margin-left: 6px; }
@@ -57,6 +57,19 @@
   .csat-item { border-top: 1px solid var(--line); padding: 8px 0; font-size: 13px; }
   .csat-item:first-of-type { margin-top: 10px; }
   .csat-item em { color: var(--muted); font-style: normal; display: block; margin-top: 2px; }
+  .calls { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+  .call { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; animation: in .35s ease-out; }
+  .call-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 13px; }
+  .call-id { font-family: ui-monospace, Menlo, monospace; color: var(--muted); font-size: 12px; word-break: break-all; }
+  .call-meta { margin-left: auto; color: var(--muted); font-size: 12px; }
+  .call-summary { margin: 10px 0 12px; font-size: 14px; line-height: 1.5; color: #d7e1f0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font-size: 12px; padding: 4px 9px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); }
+  .chip b { color: var(--muted); font-weight: 500; margin-right: 4px; }
+  .chip.success { color: var(--ok); border-color: rgba(47,191,113,.35); }
+  .chip.failure { color: var(--bad); border-color: rgba(255,92,97,.35); }
+  .chip.unknown { color: var(--warn); border-color: rgba(245,176,65,.35); }
+  .sub-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 12px 0 6px; }
   pre { margin: 0; font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; color: #c9d6ea; }
   @media (max-width: 900px) { main { grid-template-columns: 1fr; } .e-body { grid-template-columns: 1fr; } .e-body > div + div { border-left: 0; border-top: 1px solid var(--line); } }
 </style>
@@ -77,6 +90,8 @@
     <div id="customers"></div>
   </section>
   <section>
+    <h2>Post-call analysis from ElevenLabs</h2>
+    <div class="calls" id="calls"><div class="empty">Each finished call's summary, extracted data and evaluation will appear here.</div></div>
     <h2>Incoming webhooks from ElevenLabs agent</h2>
     <div class="feed" id="feed"><div class="empty">Waiting for the agent to call a service…</div></div>
   </section>
@@ -111,6 +126,32 @@
         ${x.comment ? `<em>"${esc(x.comment)}"</em>` : ""}</div>`).join("")}`;
   }
 
+  const pretty = (k) => k.replace(/_/g, " ");
+
+  function renderCalls(calls) {
+    const el = document.getElementById("calls");
+    if (!calls.length) {
+      el.innerHTML = '<div class="empty">Each finished call\'s summary, extracted data and evaluation will appear here.</div>';
+      return;
+    }
+    el.innerHTML = calls.slice().reverse().map((c) => {
+      const outcome = c.call_successful || "unknown";
+      const data = Object.entries(c.data || {}).filter(([, v]) => v !== null && v !== "");
+      const evals = Object.entries(c.evaluation || {});
+      return `
+        <div class="call">
+          <div class="call-top">
+            <span class="chip ${outcome}">${esc(outcome === "success" ? "Call successful" : outcome === "failure" ? "Call failed" : "Outcome unknown")}</span>
+            <span class="call-id">${esc(c.conversation_id || "")}</span>
+            <span class="call-meta">${c.duration_secs != null ? esc(c.duration_secs) + "s · " : ""}${esc(c.at)}</span>
+          </div>
+          ${c.summary ? `<div class="call-summary">${esc(c.summary)}</div>` : ""}
+          ${data.length ? `<div class="sub-label">Data collected</div><div class="chips">${data.map(([k, v]) => `<span class="chip"><b>${esc(pretty(k))}</b>${esc(v)}</span>`).join("")}</div>` : ""}
+          ${evals.length ? `<div class="sub-label">Evaluation</div><div class="chips">${evals.map(([k, v]) => `<span class="chip ${esc(v)}">${esc(pretty(k))}</span>`).join("")}</div>` : ""}
+        </div>`;
+    }).join("");
+  }
+
   function renderEvents(events) {
     if (!events.length) {
       document.getElementById("feed").innerHTML = '<div class="empty">Waiting for the agent to call a service…</div>';
@@ -138,6 +179,7 @@
         lastSig = sig;
         renderCustomers(s.customers);
         renderCsat(s.csat || []);
+        renderCalls(s.calls || []);
         renderEvents(s.events);
         const newest = s.events.at(-1);
         if (newest && newest.id !== lastEventId) {

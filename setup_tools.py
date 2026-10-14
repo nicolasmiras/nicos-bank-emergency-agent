@@ -7,6 +7,7 @@ import json
 import os
 import sys
 import urllib.request
+from pathlib import Path
 
 AGENT_ID = "agent_0101m4y1ss4gekrb34sbfcnf2cm2"
 API = "https://api.elevenlabs.io/v1/convai"
@@ -75,9 +76,32 @@ def req(method, url, body=None):
     r = urllib.request.Request(url, method=method, data=json.dumps(body).encode() if body else None,
                                headers={"xi-api-key": KEY, "Content-Type": "application/json"})
     try:
-        return json.load(urllib.request.urlopen(r))
+        raw = urllib.request.urlopen(r).read()
+        return json.loads(raw) if raw else {}
     except urllib.error.HTTPError as e:
         sys.exit(f"{method} {url} -> {e.code}: {e.read().decode()[:500]}")
+
+
+WEBHOOK_NAME = "Nico's Bank post-call"
+SECRET_FILE = Path(__file__).parent / ".webhook_secret"
+
+
+def setup_post_call_webhook():
+    """Point a signed post-call webhook at BASE and attach it to this agent only."""
+    url = f"{BASE}/api/webhooks/post-call"
+    hooks = req("GET", "https://api.elevenlabs.io/v1/workspace/webhooks")["webhooks"]
+    # The signing secret is only returned on creation, so recreate the webhook on each new tunnel URL.
+    for h in hooks:
+        if h.get("name") == WEBHOOK_NAME:
+            req("DELETE", f"https://api.elevenlabs.io/v1/workspace/webhooks/{h['webhook_id']}")
+    created = req("POST", "https://api.elevenlabs.io/v1/workspace/webhooks",
+                  {"settings": {"auth_type": "hmac", "name": WEBHOOK_NAME, "webhook_url": url}})
+    SECRET_FILE.write_text(created["webhook_secret"])
+    SECRET_FILE.chmod(0o600)
+    req("PATCH", f"{API}/agents/{AGENT_ID}",
+        {"platform_settings": {"workspace_overrides": {"webhooks": {
+            "post_call_webhook_id": created["webhook_id"], "events": ["transcript"], "transcript_format": "json"}}}})
+    print(f"post-call webhook -> {url}")
 
 
 if __name__ == "__main__":
@@ -99,3 +123,4 @@ if __name__ == "__main__":
     req("PATCH", f"{API}/agents/{AGENT_ID}",
         {"conversation_config": {"agent": {"prompt": {"tool_ids": sorted(set(current + ids))}}}})
     print("agent tools:", len(set(current + ids)))
+    setup_post_call_webhook()

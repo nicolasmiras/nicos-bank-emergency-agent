@@ -29,7 +29,7 @@ Nico's Bank is a fictional Chilean digital bank. Everything behind the agent is 
 
 Anything that isn't an emergency (e.g. a mortgage question) is routed to the **chat inside the Nico's Bank app or the web chat on the website**: human agents during business hours, a ticket outside them.
 
-The back-office dashboard shows every webhook (request + response) and the account and cards turning from *active* to *locked* live during the call.
+The back-office dashboard shows every webhook (request + response) and the account and cards turning from *active* to *locked* live during the call. When the caller hangs up, ElevenLabs' **post-call webhook** delivers the call summary, extracted data and evaluation results, which appear on the dashboard a few seconds later.
 
 ## Architecture
 
@@ -50,7 +50,9 @@ sequenceDiagram
     A->>B: POST /api/webhooks/cards-block
     A->>B: POST /api/webhooks/incidents
     A->>B: POST /api/webhooks/csat
-    B-->>D: State + webhook log (polled every 1s)
+    Note over A,B: Caller hangs up
+    A->>B: POST /api/webhooks/post-call (HMAC-signed)
+    B-->>D: State, webhook log and post-call analysis (polled every 1s)
     L-->>C: Live transcript + Conversation ID
 ```
 
@@ -67,6 +69,8 @@ ElevenLabs calls the webhooks from its own servers, so the local backend is expo
 | `create_incident` | Webhook | Registers the case for the Fraud & Security team and returns a ticket id plus a `spoken_ticket_id` for TTS. |
 | `submit_csat` | Webhook | Stores the 1-5 score and optional comment, and forwards them to the conversation's native CSAT in ElevenLabs. |
 | `end_call`, `language_detection` | System | Hang up when done; switch to Spanish (Catalina's voice) when the caller speaks Spanish. |
+
+**Post-call webhook.** After each call ElevenLabs sends a `post_call_transcription` event to `/api/webhooks/post-call`. The backend verifies the `ElevenLabs-Signature` HMAC (and its timestamp) before accepting it, and the dashboard shows the summary, success flag, collected data and pass/fail per evaluation criterion. The webhook is attached to this agent only through `workspace_overrides`, so it doesn't affect other agents in the workspace.
 
 Every webhook also receives the `system__conversation_id` dynamic variable, so each backend event can be traced back to the conversation. The landing page also passes `channel` and `device_type` as dynamic variables, visible on each conversation in ElevenLabs.
 
@@ -113,7 +117,7 @@ Requirements: macOS or Linux, Python 3, [`cloudflared`](https://developers.cloud
 # 1. Mock core banking API + back-office dashboard (http://localhost:8787/dashboard)
 python3 mock_core.py
 
-# 2. Public tunnel; also re-points the agent's webhook tools at the new URL
+# 2. Public tunnel; re-points the webhook tools and the post-call webhook at the new URL
 ./start_tunnel.sh
 
 # 3. Landing page (http://localhost:8765). The mic needs localhost or HTTPS.
@@ -155,6 +159,6 @@ agent/
 - Replace the mock with the real core banking, card processor and ticketing APIs (e.g. Zendesk), authenticated with ElevenLabs workspace secrets.
 - Run the RUT check server-side as well, and add risk signals (caller ID, device, recent activity) to `lookup_customer`.
 - Connect a phone number (Twilio or SIP trunk) for real inbound calls.
-- Use the post-call webhook to push transcripts, extracted data and CSAT to the CRM or data warehouse.
+- Forward the post-call payload (already received and verified) to the CRM or data warehouse.
 - Turn on ElevenLabs conversation history redaction (enterprise) for passwords, card numbers, CVV and bank accounts, so stored transcripts are masked too, not just the live view.
 - Run the agent test suite in CI on every prompt or tool change, and add full simulation tests with mocked tool responses.

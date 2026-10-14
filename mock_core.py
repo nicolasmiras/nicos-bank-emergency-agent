@@ -6,8 +6,12 @@ Also serves a live back-office dashboard at /dashboard.
 
 Run: python3 mock_core.py  (listens on :8787, no dependencies)
 """
+import hashlib
+import hmac
 import json
+import os
 import random
+import time
 import threading
 import urllib.error
 import urllib.request
@@ -17,6 +21,8 @@ from pathlib import Path
 
 PORT = 8787
 ELEVENLABS_API = "https://api.elevenlabs.io"
+SECRET_FILE = Path(__file__).parent / ".webhook_secret"
+SIGNATURE_TOLERANCE_SECS = 30 * 60
 CHILE = timezone(timedelta(hours=-3))
 
 # Seed customers, keyed by normalized RUT (no dots, uppercase check digit).
@@ -57,6 +63,7 @@ CUSTOMERS = {
 
 EVENTS = []  # newest last
 CSAT = []
+CALLS = []  # post-call analyses, newest last
 LOCK = threading.Lock()
 
 
@@ -174,12 +181,55 @@ def forward_rating_to_elevenlabs(conversation_id, score, comment):
         return False
 
 
+def webhook_secret():
+    secret = os.environ.get("ELEVENLABS_WEBHOOK_SECRET")
+    if not secret and SECRET_FILE.exists():
+        secret = SECRET_FILE.read_text().strip()
+    return secret
+
+
+def verify_signature(raw, header):
+    """ElevenLabs signs post-call webhooks as 't=<ts>,v0=<hmac_sha256(secret, "<ts>.<body>")>'."""
+    secret = webhook_secret()
+    if not secret:
+        return True  # signature check disabled until a secret is configured
+    parts = dict(p.split("=", 1) for p in (header or "").split(",") if "=" in p)
+    ts, sig = parts.get("t"), parts.get("v0")
+    if not ts or not sig or abs(time.time() - int(ts)) > SIGNATURE_TOLERANCE_SECS:
+        return False
+    expected = hmac.new(secret.encode(), f"{ts}.".encode() + raw, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(expected, sig)
+
+
+def post_call(payload):
+    if payload.get("type") != "post_call_transcription":
+        return 200, {"ignored": payload.get("type")}
+    data = payload.get("data") or {}
+    analysis = data.get("analysis") or {}
+    meta = data.get("metadata") or {}
+    call = {
+        "conversation_id": data.get("conversation_id"),
+        "at": now().strftime("%H:%M:%S"),
+        "duration_secs": meta.get("call_duration_secs"),
+        "termination_reason": meta.get("termination_reason"),
+        "call_successful": analysis.get("call_successful"),
+        "summary": analysis.get("transcript_summary"),
+        "data": {k: (v or {}).get("value") for k, v in (analysis.get("data_collection_results") or {}).items()},
+        "evaluation": {k: (v or {}).get("result") for k, v in (analysis.get("evaluation_criteria_results") or {}).items()},
+        "turns": len(data.get("transcript") or []),
+    }
+    with LOCK:
+        CALLS.append(call)
+    return 200, {"received": True, "conversation_id": call["conversation_id"]}
+
+
 ROUTES = {
     "/api/customers/lookup": ("Customer lookup", lookup_customer),
     "/api/webhooks/account-lock": ("Account lock service", lock_account),
     "/api/webhooks/cards-block": ("Card block service", block_cards),
     "/api/webhooks/incidents": ("Incident registry", create_incident),
     "/api/webhooks/csat": ("CSAT survey", submit_csat),
+    "/api/webhooks/post-call": ("Post-call webhook", post_call),
 }
 
 
@@ -206,13 +256,17 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, html, "text/html; charset=utf-8")
         if self.path == "/api/state":
             with LOCK:
-                return self._send(200, {"customers": CUSTOMERS, "events": EVENTS[-50:], "csat": CSAT[-20:]})
+                return self._send(200, {"customers": CUSTOMERS, "events": EVENTS[-50:], "csat": CSAT[-20:], "calls": CALLS[-10:]})
         self._send(404, {"error": "not found"})
 
     def do_POST(self):
         length = int(self.headers.get("Content-Length") or 0)
+        raw = self.rfile.read(length) or b"{}"
+        if self.path == "/api/webhooks/post-call" and not verify_signature(raw, self.headers.get("ElevenLabs-Signature")):
+            log_event("Post-call webhook", {"signature": "invalid"}, {"error": "invalid signature"}, 401)
+            return self._send(401, {"error": "invalid signature"})
         try:
-            body = json.loads(self.rfile.read(length) or b"{}")
+            body = json.loads(raw)
         except json.JSONDecodeError:
             return self._send(400, {"error": "invalid JSON"})
         if self.path == "/api/reset":
@@ -223,7 +277,12 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(404, {"error": "not found"})
         service, fn = route
         code, response = fn(body)
-        log_event(service, body, response, code)
+        if self.path == "/api/webhooks/post-call":
+            # Full payload holds the whole transcript; log just the essentials.
+            shown = {k: (body.get("data") or {}).get(k) for k in ("conversation_id", "agent_id", "status")}
+            log_event(service, {"type": body.get("type"), **shown}, response, code)
+        else:
+            log_event(service, body, response, code)
         self._send(code, response)
 
     def log_message(self, fmt, *args):
@@ -239,6 +298,7 @@ def reset():
         CUSTOMERS.update(json.loads(SEED))
         EVENTS.clear()
         CSAT.clear()
+        CALLS.clear()
 
 
 if __name__ == "__main__":
