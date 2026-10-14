@@ -229,6 +229,124 @@
     ]
   },
   {
+    "name": "Consent mentions 1-hour recovery",
+    "type": "llm",
+    "chat_history": [
+      {
+        "role": "agent",
+        "message": "Hi, you've reached Nico's Bank's emergency line. I'm Sarah, a virtual assistant. How can I help you today?",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "user",
+        "message": "Someone just robbed my phone on the street, they threatened me.",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "agent",
+        "message": "I'm really sorry, that sounds frightening. I'm here and we'll secure your account together. Could you give me your RUT, including the digit after the dash?",
+        "time_in_call_secs": 10
+      },
+      {
+        "role": "user",
+        "message": "19.577.077-8",
+        "time_in_call_secs": 15
+      },
+      {
+        "role": "agent",
+        "message": "Thanks. One nine, five seven seven, zero seven seven, dash eight. That RUT checks out and I found your account. So this was a robbery, with threats. What day did it happen?",
+        "time_in_call_secs": 20
+      },
+      {
+        "role": "user",
+        "message": "Today.",
+        "time_in_call_secs": 25
+      },
+      {
+        "role": "agent",
+        "message": "Okay, today, October 14th. And roughly what time?",
+        "time_in_call_secs": 30
+      },
+      {
+        "role": "user",
+        "message": "Around 9 pm.",
+        "time_in_call_secs": 35
+      },
+      {
+        "role": "agent",
+        "message": "Got it, around 9 pm. Can you tell me briefly what happened?",
+        "time_in_call_secs": 40
+      },
+      {
+        "role": "user",
+        "message": "I was walking near the Baquedano metro station and a guy threatened me and took my phone.",
+        "time_in_call_secs": 45
+      },
+      {
+        "role": "agent",
+        "message": "That's awful, I'm sorry. So to confirm: a man threatened you near Baquedano metro station and took your phone, around 9 pm today. Is that right?",
+        "time_in_call_secs": 60
+      },
+      {
+        "role": "user",
+        "message": "Yes, that's right.",
+        "time_in_call_secs": 65
+      }
+    ],
+    "success_condition": "Before locking anything, the agent asks for consent AND tells the caller that the lock is temporary: in about an hour they can get back into the account after an identity check. It does not lock without asking.",
+    "success_examples": [
+      {
+        "response": "Since your phone is gone, I'm going to lock your account and block all your cards right now. In about an hour you'll be able to get back in after a quick identity check. Shall I go ahead?",
+        "type": "success"
+      }
+    ],
+    "failure_examples": [
+      {
+        "response": "Since your phone is gone, I'm going to lock your account and block all your cards right now. Shall I go ahead?",
+        "type": "failure"
+      }
+    ]
+  },
+  {
+    "name": "Gentle CSAT survey",
+    "type": "llm",
+    "chat_history": [
+      {
+        "role": "agent",
+        "message": "Hi, you've reached Nico's Bank's emergency line. I'm Sarah, a virtual assistant. How can I help you today?",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "user",
+        "message": "My phone was stolen, can you lock everything?",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "agent",
+        "message": "Okay, it's done. Your account and your three cards are now locked, and your ticket number ends in 7-1-8-8. Like I mentioned, from about 8:40 you can get back in after a quick identity check. Is there anything else I can help you with?",
+        "time_in_call_secs": 10
+      },
+      {
+        "role": "user",
+        "message": "No, that's all, thanks.",
+        "time_in_call_secs": 15
+      }
+    ],
+    "success_condition": "The agent eases into the satisfaction survey warmly (e.g. acknowledges that everything is secured), asks for a 1-5 rating in a light way and makes it clear it's optional. It does NOT open bluntly with 'Before you go, on a scale from 1 to 5'.",
+    "success_examples": [
+      {
+        "response": "I'm really glad we got everything secured for you. If you have a second, how would you rate the help you got today, from 1 to 5? Totally fine to skip it.",
+        "type": "success"
+      }
+    ],
+    "failure_examples": [
+      {
+        "response": "Before you go, on a scale from one to five, how satisfied are you with the help you got today?",
+        "type": "failure"
+      }
+    ]
+  },
+  {
     "name": "Full lock calls lock_account",
     "type": "tool",
     "chat_history": [

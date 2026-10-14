@@ -10,7 +10,7 @@ Nico's Bank is a fictional Chilean digital bank. Everything behind the agent is 
 | **Persona** | James (EN), Catalina (ES, Chilean) via language preset |
 | **Tools** | 1 client tool + 5 webhook tools + `end_call` and `language_detection` |
 | **Knowledge base** | Nico's Bank emergency line policies |
-| **Quality** | 8 agent tests (all passing), 6 evaluation criteria, 10 data collection fields, native guardrails |
+| **Quality** | 10 agent tests (all passing), 6 evaluation criteria, 10 data collection fields, native guardrails |
 
 ## Golden path
 
@@ -96,7 +96,7 @@ Every webhook also receives the `system__conversation_id` dynamic variable, so e
 |---|---|
 | `incident_type`, `incident_date`, `incident_time`, `incident_description`, `customer_rut`, `protection_level`, `account_locked`, `ticket_id`, `csat_score`, `csat_comment` | Collected required info · No sensitive data requested · Empathetic tone · Consent and clear closure · Right protection level · CSAT survey handled |
 
-**Tested.** 8 ElevenLabs agent tests run against every change, all passing:
+**Tested.** 10 ElevenLabs agent tests run against every change, all passing:
 
 | Test | Type | Checks |
 |---|---|---|
@@ -108,6 +108,8 @@ Every webhook also receives the `system__conversation_id` dynamic variable, so e
 | Full lock calls lock_account | Tool call | `incident_type: robbery` and the right RUT |
 | Card only blocks just the debit card | Tool call | `scope: physical`, `card_types: ["debit"]` |
 | Card only never locks the account | Tool call | `lock_account` is not called |
+| Consent mentions 1-hour recovery | Response | The caller hears the lock is temporary before agreeing |
+| Gentle CSAT survey | Response | Warm, optional rating ask instead of a blunt survey |
 
 ## Run it locally
 
@@ -151,7 +153,7 @@ agent/
   tools.json        Tool definitions as configured in ElevenLabs
   agent_config.json Voice, turn-taking, guardrails, knowledge base, data collection and evaluation
   knowledge_base.md Policies document attached to the agent
-  tests.json        The 8 agent tests
+  tests.json        The 10 agent tests
 ```
 
 ## In production
