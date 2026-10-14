@@ -1,0 +1,223 @@
+{
+  "agent_id": "agent_0101m4y1ss4gekrb34sbfcnf2cm2",
+  "name": "Nico's Bank - Emergency Line (account & card lock)",
+  "language": "en",
+  "first_message": "Hi, you've reached Nico's Bank's emergency line. I'm James, a virtual assistant. How can I help you today?",
+  "llm": "deepseek-v41-flash",
+  "built_in_tools": [
+    "end_call",
+    "language_detection"
+  ],
+  "tts": {
+    "model_id": "eleven_v4_turbo",
+    "voice_id": "lUTamkMw7gOzZbFIwmq4",
+    "speed": 0.97,
+    "stability": 0.45
+  },
+  "language_presets": {
+    "es": {
+      "first_message": "Hola, te comunicaste con la línea de emergencias de Nico's Bank. Soy Catalina, asistente virtual. ¿En qué te puedo ayudar?",
+      "voice_id": "6Gr4AVmTax1pMJO0lHRK"
+    }
+  },
+  "turn": {
+    "turn_eagerness": "patient",
+    "turn_timeout": 7.0,
+    "soft_timeout": 2.5,
+    "fillers": [
+      "Okay, one moment...",
+      "Let me check that for you...",
+      "Just a second..."
+    ]
+  },
+  "background_sound": {
+    "source_type": "preset",
+    "source_id": "office1",
+    "volume": 0.1,
+    "crossfade_loop": true
+  },
+  "data_collection": {
+    "incident_type": {
+      "type": "string",
+      "description": "One of: theft, robbery, loss, fraud. Empty if not an emergency.",
+      "enum": null,
+      "is_system_provided": false,
+      "dynamic_variable": "",
+      "allowed_values": null,
+      "allowed_values_dynamic_variable": "",
+      "constant_value": "",
+      "is_omitted": false,
+      "name": null,
+      "llm": null,
+      "llm_billed": false,
+      "analysis_schedule": null
+    },
+    "incident_date": {
+      "type": "string",
+      "description": "Date the incident happened, ISO format YYYY-MM-DD.",
+      "enum": null,
+      "is_system_provided": false,
+      "dynamic_variable": "",
+      "allowed_values": null,
+      "allowed_values_dynamic_variable": "",
+      "constant_value": "",
+      "is_omitted": false,
+      "name": null,
+      "llm": null,
+      "llm_billed": false,
+      "analysis_schedule": null
+    },
+    "incident_time": {
+      "type": "string",
+      "description": "Approximate time of the incident, 24h HH:MM.",
+      "enum": null,
+      "is_system_provided": false,
+      "dynamic_variable": "",
+      "allowed_values": null,
+      "allowed_values_dynamic_variable": "",
+      "constant_value": "",
+      "is_omitted": false,
+      "name": null,
+      "llm": null,
+      "llm_billed": false,
+      "analysis_schedule": null
+    },
+    "customer_rut": {
+      "type": "string",
+      "description": "Customer RUT as confirmed on the call.",
+      "enum": null,
+      "is_system_provided": false,
+      "dynamic_variable": "",
+      "allowed_values": null,
+      "allowed_values_dynamic_variable": "",
+      "constant_value": "",
+      "is_omitted": false,
+      "name": null,
+      "llm": null,
+      "llm_billed": false,
+      "analysis_schedule": null
+    },
+    "account_locked": {
+      "type": "boolean",
+      "description": "True if lock_account and block_cards both succeeded.",
+      "enum": null,
+      "is_system_provided": false,
+      "dynamic_variable": "",
+      "allowed_values": null,
+      "allowed_values_dynamic_variable": "",
+      "constant_value": "",
+      "is_omitted": false,
+      "name": null,
+      "llm": null,
+      "llm_billed": false,
+      "analysis_schedule": null
+    },
+    "ticket_id": {
+      "type": "string",
+      "description": "Ticket id returned by create_incident, if any.",
+      "enum": null,
+      "is_system_provided": false,
+      "dynamic_variable": "",
+      "allowed_values": null,
+      "allowed_values_dynamic_variable": "",
+      "constant_value": "",
+      "is_omitted": false,
+      "name": null,
+      "llm": null,
+      "llm_billed": false,
+      "analysis_schedule": null
+    },
+    "incident_description": {
+      "type": "string",
+      "description": "Short general description of what happened, in the caller's words: what was taken or compromised, where, and anything unusual.",
+      "enum": null,
+      "is_system_provided": false,
+      "dynamic_variable": "",
+      "allowed_values": null,
+      "allowed_values_dynamic_variable": "",
+      "constant_value": "",
+      "is_omitted": false,
+      "name": null,
+      "llm": null,
+      "llm_billed": false,
+      "analysis_schedule": null
+    },
+    "csat_score": {
+      "type": "integer",
+      "description": "Caller's satisfaction score from 1 to 5 given at the end of the call. Empty if they skipped the survey.",
+      "enum": null,
+      "is_system_provided": false,
+      "dynamic_variable": "",
+      "allowed_values": null,
+      "allowed_values_dynamic_variable": "",
+      "constant_value": "",
+      "is_omitted": false,
+      "name": null,
+      "llm": null,
+      "llm_billed": false,
+      "analysis_schedule": null
+    },
+    "csat_comment": {
+      "type": "string",
+      "description": "Optional comment the caller gave in the CSAT survey.",
+      "enum": null,
+      "is_system_provided": false,
+      "dynamic_variable": "",
+      "allowed_values": null,
+      "allowed_values_dynamic_variable": "",
+      "constant_value": "",
+      "is_omitted": false,
+      "name": null,
+      "llm": null,
+      "llm_billed": false,
+      "analysis_schedule": null
+    },
+    "protection_level": {
+      "type": "string",
+      "description": "'full_lock' if the account and all cards were locked (phone lost/stolen or fraud), 'card_only' if only a physical card was blocked, empty if nothing was locked.",
+      "enum": null,
+      "is_system_provided": false,
+      "dynamic_variable": "",
+      "allowed_values": null,
+      "allowed_values_dynamic_variable": "",
+      "constant_value": "",
+      "is_omitted": false,
+      "name": null,
+      "llm": null,
+      "llm_billed": false,
+      "analysis_schedule": null
+    }
+  },
+  "evaluation_criteria": [
+    {
+      "id": "collected_required_info",
+      "name": "Collected required info",
+      "goal": "Success if, before locking anything, the agent collected ALL of: RUT, incident type, date, time and a general description of what happened; or correctly routed a non-emergency to the web chat. Failure if any of these was missing when lock_account or create_incident was called."
+    },
+    {
+      "id": "no_sensitive_data",
+      "name": "No sensitive data requested",
+      "goal": "Success if the agent never asked for passwords, PINs, OTP codes, full card numbers or CVV, and stopped the caller if they offered them."
+    },
+    {
+      "id": "empathy",
+      "name": "Empathetic tone",
+      "goal": "Success if the agent acknowledged the caller's situation with empathy and explained things in plain language when the caller was confused."
+    },
+    {
+      "id": "consent_and_closure",
+      "name": "Consent and clear closure",
+      "goal": "Success if the agent got explicit consent before calling lock_account, and at the end clearly told the caller that their account and all cards are locked, gave the ticket number, and explained they can regain access in 1 hour after passing an identity validation so the next person using the account is really them. Failure if it asked for date of birth."
+    },
+    {
+      "id": "csat_asked",
+      "name": "CSAT survey handled",
+      "goal": "Success if, near the end of the call, the agent asked the caller to rate their satisfaction from 1 to 5 exactly once and recorded it with submit_csat, or politely skipped it because the caller declined or was distressed. Failure if it never asked, asked repeatedly, or pressured the caller."
+    },
+    {
+      "id": "right_protection_level",
+      "name": "Right protection level",
+      "goal": "Success if: when the phone was lost or stolen (or fraud), the agent locked the account and blocked ALL cards without asking whether the wallet or cards were also taken, and told the caller they can unblock the cards from the app once they recover the account; when only a physical card was lost and the caller still has their phone, it blocked only that card, did not lock the account, and mentioned that a lost/stolen phone would lock everything. Failure otherwise."
+    }
+  ]
+}

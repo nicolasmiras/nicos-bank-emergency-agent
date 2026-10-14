@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nico's Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07070a;
+    --bg-2: #0f0f14;
+    --surface: #15151c;
+    --surface-2: #1d1d26;
+    --line: rgba(255, 255, 255, .08);
+    --text: #ffffff;
+    --muted: #9a9aab;
+    --violet: #7b61ff;
+    --blue: #2f80ff;
+    --pink: #ff4f8b;
+    --mint: #2ee6a6;
+    --red: #ff4d5e;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter Tight", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    border: 0; cursor: pointer; border-radius: 999px; font-weight: 600; font-size: 15px;
+    padding: 14px 24px; transition: transform .15s ease, background .2s, box-shadow .2s;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-white { background: #fff; color: #000; }
+  .btn-glass { background: rgba(255,255,255,.08); color: #fff; border: 1px solid var(--line); backdrop-filter: blur(10px); }
+  .btn-glass:hover { background: rgba(255,255,255,.14); }
+  .btn-sos { background: var(--red); color: #fff; box-shadow: 0 10px 40px rgba(255,77,94,.35); }
+  .btn-sos:hover { box-shadow: 0 14px 50px rgba(255,77,94,.5); }
+  .btn-lg { padding: 18px 30px; font-size: 16px; }
+
+  /* Nav */
+  nav { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(16px); background: rgba(7,7,10,.6); border-bottom: 1px solid transparent; }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+  .logo { font-weight: 800; font-size: 22px; letter-spacing: -0.04em; display: flex; align-items: center; gap: 8px; }
+  .logo-dot { width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(135deg, var(--violet), var(--pink)); }
+  .nav-links { display: flex; gap: 32px; font-size: 15px; font-weight: 500; color: #d6d6e0; }
+  .nav-links a:hover { color: #fff; }
+  .nav-right { display: flex; align-items: center; gap: 18px; font-weight: 600; font-size: 15px; }
+  .nav-right .btn { padding: 10px 20px; }
+
+  /* Hero */
+  .hero { position: relative; padding: 72px 0 120px; }
+  .glow { position: absolute; border-radius: 50%; filter: blur(110px); opacity: .55; pointer-events: none; }
+  .glow.a { width: 520px; height: 520px; background: var(--violet); top: -120px; right: 8%; }
+  .glow.b { width: 420px; height: 420px; background: var(--pink); top: 220px; right: -120px; opacity: .35; }
+  .glow.c { width: 380px; height: 380px; background: var(--blue); top: 120px; left: -160px; opacity: .3; }
+  .hero .wrap { position: relative; display: grid; grid-template-columns: 1.05fr .95fr; gap: 40px; align-items: center; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px 7px 8px; border-radius: 999px;
+    background: rgba(255,255,255,.06); border: 1px solid var(--line); font-size: 13px; font-weight: 600; color: #e7e7ef;
+  }
+  .badge b { background: var(--red); color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 999px; letter-spacing: .04em; }
+  h1 {
+    font-size: clamp(48px, 7.2vw, 96px); line-height: .95; letter-spacing: -0.04em; word-spacing: .06em; font-weight: 800;
+    margin: 22px 0 22px;
+  }
+  .grad { background: linear-gradient(90deg, #b9a8ff, #ff7eb0 60%, #ffb38a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lede { font-size: 20px; line-height: 1.5; color: var(--muted); max-width: 520px; margin: 0 0 34px; }
+  .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+  .trust { display: flex; gap: 28px; margin-top: 44px; flex-wrap: wrap; }
+  .trust div { font-size: 13px; color: var(--muted); }
+  .trust strong { display: block; color: #fff; font-size: 28px; letter-spacing: -0.03em; font-weight: 700; }
+
+  /* Phone mockup */
+  .stage { position: relative; height: 620px; }
+  .device {
+    position: absolute; right: 40px; top: 0; width: 300px; height: 610px; border-radius: 46px;
+    background: #000; border: 10px solid #1b1b22; box-shadow: 0 40px 120px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.06);
+    overflow: hidden; transform: rotate(4deg);
+  }
+  .notch { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 96px; height: 26px; background: #000; border-radius: 20px; z-index: 2; }
+  .screen { position: absolute; inset: 0; padding: 52px 18px 18px; background: radial-gradient(120% 70% at 50% 0%, #3b2a8f 0%, #15121f 55%, #0a0a0f 100%); }
+  .app-top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #cfcfe0; }
+  .avatar-sm { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--violet), var(--pink)); display: grid; place-items: center; font-weight: 700; font-size: 13px; color: #fff; }
+  .balance { text-align: center; margin: 34px 0 10px; }
+  .balance small { color: #b9b9cc; font-size: 12px; }
+  .balance div { font-size: 40px; font-weight: 700; letter-spacing: -0.04em; }
+  .balance div span { font-size: 22px; color: #cfcfe0; }
+  .chips { display: flex; justify-content: center; gap: 8px; margin: 14px 0 22px; }
+  .chip { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.1); display: grid; place-items: center; }
+  .txs { background: rgba(255,255,255,.06); border-radius: 20px; padding: 6px 14px; }
+  .tx { display: flex; align-items: center; gap: 10px; padding: 11px 0; font-size: 13px; border-bottom: 1px solid var(--line); }
+  .tx:last-child { border-bottom: 0; }
+  .tx i { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 14px; flex: none; }
+  .tx .n { flex: 1; } .tx .n small { display: block; color: #8d8da0; font-size: 11px; }
+  .tx .a { font-weight: 600; }
+
+  .card3d {
+    position: absolute; left: 0; top: 290px; width: 300px; height: 188px; border-radius: 18px; padding: 20px;
+    background:
+      linear-gradient(115deg, rgba(255,255,255,.35) 0%, rgba(255,255,255,0) 35%),
+      linear-gradient(135deg, #8f7bff 0%, #6a4dff 35%, #ff4f8b 100%);
+    box-shadow: 0 30px 80px rgba(123,97,255,.45); transform: rotate(-10deg); display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .card3d .row1 { display: flex; justify-content: space-between; align-items: center; font-weight: 800; letter-spacing: -0.03em; font-size: 18px; }
+  .card3d .chipg { width: 38px; height: 28px; border-radius: 6px; background: linear-gradient(135deg, #f5e3a3, #c9a650); }
+  .card3d .num { font-family: ui-monospace, Menlo, monospace; letter-spacing: .14em; font-size: 15px; opacity: .95; }
+  .card3d .row3 { display: flex; justify-content: space-between; font-size: 12px; opacity: .9; }
+
+  .toast {
+    position: absolute; right: 0; top: 70px; display: flex; gap: 12px; align-items: center;
+    background: rgba(20,20,28,.85); backdrop-filter: blur(14px); border: 1px solid var(--line);
+    border-radius: 18px; padding: 12px 16px; box-shadow: 0 20px 50px rgba(0,0,0,.45); animation: float 5s ease-in-out infinite;
+  }
+  .toast .ic { width: 36px; height: 36px; border-radius: 12px; background: rgba(46,230,166,.15); color: var(--mint); display: grid; place-items: center; }
+  .toast b { display: block; font-size: 14px; }
+  .toast span { font-size: 12px; color: var(--muted); }
+  .toast.t2 { right: auto; left: 30px; top: 520px; animation-delay: -2.5s; }
+  .toast.t2 .ic { background: rgba(255,77,94,.15); color: var(--red); }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+  /* Sections */
+  section.block { padding: 110px 0; }
+  .kicker { font-size: 14px; font-weight: 600; color: #b9a8ff; letter-spacing: .02em; }
+  h2 { font-size: clamp(36px, 5vw, 64px); line-height: 1; letter-spacing: -0.04em; word-spacing: .05em; font-weight: 800; margin: 14px 0 18px; }
+  .sub { color: var(--muted); font-size: 19px; line-height: 1.5; max-width: 560px; margin: 0; }
+
+  .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-top: 56px; }
+  .tile {
+    position: relative; overflow: hidden; border-radius: 28px; padding: 30px; min-height: 280px;
+    background: var(--surface); border: 1px solid var(--line); display: flex; flex-direction: column; justify-content: flex-end;
+  }
+  .tile h3 { font-size: 28px; letter-spacing: -0.04em; margin: 0 0 8px; font-weight: 700; line-height: 1.05; }
+  .tile p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.5; max-width: 380px; }
+  .t-big { grid-column: span 4; background: linear-gradient(140deg, #2a1d6e 0%, #15151c 60%); }
+  .t-sm { grid-column: span 2; }
+  .t-half { grid-column: span 3; }
+  .t-pink { background: linear-gradient(160deg, #4a1530 0%, #15151c 70%); }
+  .t-blue { background: linear-gradient(160deg, #10285a 0%, #15151c 70%); }
+  .tile .art { position: absolute; top: 28px; right: 28px; }
+  .bignum { font-size: 120px; font-weight: 800; letter-spacing: -0.07em; line-height: .8; position: absolute; top: 30px; left: 28px; }
+  .lockring { width: 120px; height: 120px; border-radius: 50%; border: 2px solid rgba(255,255,255,.15); display: grid; place-items: center; background: radial-gradient(circle, rgba(123,97,255,.35), transparent 70%); }
+  .lang { display: flex; gap: 8px; }
+  .lang span { padding: 8px 14px; border-radius: 999px; background: rgba(255,255,255,.08); font-weight: 600; font-size: 14px; }
+  .steps { display: grid; gap: 8px; margin-bottom: 32px; max-width: 460px; }
+  .t-big { justify-content: space-between; }
+  .lang span.no { text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 2px; color: #cfcfe0; }
+  .step { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #dcdcea; background: rgba(255,255,255,.05); border-radius: 12px; padding: 10px 12px; }
+  .step i { width: 22px; height: 22px; border-radius: 50%; background: var(--mint); color: #000; display: grid; place-items: center; font-style: normal; font-size: 12px; font-weight: 800; }
+
+  /* SOS banner */
+  .sos {
+    position: relative; overflow: hidden; border-radius: 36px; padding: 72px 56px;
+    background: radial-gradient(80% 120% at 100% 0%, #ff4f8b 0%, transparent 55%), radial-gradient(70% 120% at 0% 100%, #7b61ff 0%, transparent 60%), #120f1d;
+    display: grid; grid-template-columns: 1.3fr .7fr; gap: 32px; align-items: center;
+  }
+  .sos h2 { margin-top: 0; }
+  .sos p { color: #e3dff5; font-size: 18px; line-height: 1.5; margin: 0; max-width: 520px; }
+  .sos .cta { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+  .sos small { color: #d8d3ee; font-size: 13px; }
+
+  footer { padding: 48px 0 60px; color: var(--muted); font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 28px; }
+
+  /* Call overlay */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(3,3,6,.7); backdrop-filter: blur(14px);
+    display: none; align-items: center; justify-content: center; padding: 16px; z-index: 50;
+  }
+  .overlay.open { display: flex; }
+  .phone {
+    position: relative; overflow: hidden; width: 100%; max-width: 400px; color: #fff; border-radius: 36px; padding: 32px 24px 24px;
+    background: radial-gradient(120% 60% at 50% 0%, #3b2a8f 0%, #14111f 60%, #0b0a10 100%);
+    border: 1px solid var(--line); box-shadow: 0 40px 120px rgba(0,0,0,.6);
+    display: flex; flex-direction: column; max-height: calc(100vh - 32px);
+  }
+  .call-head { text-align: center; }
+  .orb {
+    width: 104px; height: 104px; border-radius: 50%; margin: 4px auto 16px; position: relative;
+    background: conic-gradient(from 0deg, var(--violet), var(--pink), var(--blue), var(--violet));
+    filter: saturate(1.2); animation: spin 8s linear infinite;
+  }
+  .orb::before { content: ""; position: absolute; inset: 6px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff8, transparent 40%), #1a1530; }
+  .orb::after { content: ""; position: absolute; inset: -10px; border-radius: 50%; border: 2px solid transparent; }
+  .phone[data-mode="speaking"] .orb { animation-duration: 2s; transform: scale(1.04); }
+  .phone[data-mode="speaking"] .orb::after { border-color: rgba(255,79,139,.6); animation: ring 1.2s infinite; }
+  .phone[data-mode="listening"] .orb::after { border-color: rgba(46,230,166,.5); }
+  @keyframes spin { to { rotate: 360deg; } }
+  @keyframes ring { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.2); opacity: 0; } }
+  .call-name { font-weight: 700; font-size: 20px; letter-spacing: -0.02em; }
+  .call-status { color: #b9b9cc; font-size: 14px; margin-top: 4px; min-height: 20px; }
+  .call-timer { font-variant-numeric: tabular-nums; color: #8d8da0; font-size: 13px; margin-top: 2px; }
+
+  .transcript {
+    margin: 20px 0 18px; background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 20px; padding: 14px;
+    overflow-y: auto; min-height: 150px; max-height: 300px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .transcript:empty::before { content: "Live transcript will appear here"; color: #6c6c80; font-size: 13px; margin: auto; }
+  .msg { max-width: 85%; padding: 10px 13px; border-radius: 18px; font-size: 14px; line-height: 1.45; }
+  .msg.ai { background: rgba(255,255,255,.09); align-self: flex-start; border-bottom-left-radius: 6px; }
+  .msg.user { background: linear-gradient(135deg, var(--violet), #5b46e0); align-self: flex-end; border-bottom-right-radius: 6px; }
+
+  .call-actions { display: flex; justify-content: center; gap: 20px; }
+  .round {
+    width: 64px; height: 64px; border-radius: 50%; border: 0; cursor: pointer; display: grid; place-items: center;
+    color: #fff; transition: background .15s, transform .15s;
+  }
+  .round:hover { transform: scale(1.05); }
+  .round.mute { background: rgba(255,255,255,.12); }
+  .round.mute[aria-pressed="true"] { background: #fff; color: #000; }
+  .round.hang { background: var(--red); }
+
+  .ended { display: none; text-align: center; }
+  .phone.is-ended .ended { display: block; }
+  .phone.is-ended .call-actions { display: none; }
+  .conv-id {
+    display: flex; align-items: center; gap: 8px; justify-content: center; margin: 10px 0 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: #cfcfe0;
+    background: rgba(255,255,255,.06); border-radius: 12px; padding: 9px 12px; word-break: break-all;
+  }
+  .conv-id button { background: none; border: 0; color: #b9a8ff; cursor: pointer; font-size: 12px; font-weight: 700; }
+  .ended .btn { width: 100%; }
+
+  @media (max-width: 960px) {
+    .hero .wrap, .sos { grid-template-columns: 1fr; }
+    .stage { height: 560px; max-width: 420px; margin: 0 auto; width: 100%; }
+    .nav-links { display: none; }
+    .t-big, .t-sm, .t-half { grid-column: span 6; }
+  }
+  @media (max-width: 520px) {
+    .wrap { padding: 0 16px; }
+    .nav-right .login { display: none; }
+    .stage { transform: scale(.82); transform-origin: top center; height: 480px; }
+    .sos { padding: 44px 24px; }
+    .tile { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#"><span class="logo-dot"></span>Nico's Bank</a>
+    <div class="nav-links">
+      <a href="#">Personal</a><a href="#">Cards</a><a href="#security">Security</a><a href="#">Help</a>
+    </div>
+    <div class="nav-right">
+      <a class="login" href="#">Log in</a>
+      <a class="btn btn-white" href="#">Sign up</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="glow a"></div><div class="glow b"></div><div class="glow c"></div>
+  <div class="wrap">
+    <div>
+      <span class="badge"><b>24/7</b>Emergency line, answered instantly</span>
+      <h1>Lost it?<br><span class="grad">Lock it all</span><br>in one call.</h1>
+      <p class="lede">Phone stolen, wallet gone, something weird on your account? Call us and we'll lock your account and every card while you're still on the line.</p>
+      <div class="hero-ctas">
+        <button class="btn btn-sos btn-lg js-call">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          Call emergency line
+        </button>
+        <a class="btn btn-glass btn-lg" href="#security">How it works</a>
+      </div>
+      <div class="trust">
+        <div><strong>&lt;60s</strong>to lock everything</div>
+        <div><strong>24/7</strong>no waiting in line</div>
+        <div><strong>EN · ES</strong>speak your language</div>
+      </div>
+    </div>
+
+    <div class="stage" aria-hidden="true">
+      <div class="device">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="app-top"><span class="avatar-sm">N</span><span>Personal · CLP</span><span>⌕</span></div>
+          <div class="balance"><small>Main account</small><div><span>$</span>1.284.900</div></div>
+          <div class="chips">
+            <span class="chip">＋</span><span class="chip">⇄</span><span class="chip">▤</span><span class="chip">⋯</span>
+          </div>
+          <div class="txs">
+            <div class="tx"><i style="background:#2b2350">☕</i><div class="n">Café Altura<small>Today, 09:12</small></div><span class="a">−$3.900</span></div>
+            <div class="tx"><i style="background:#1f3350">🚇</i><div class="n">Metro de Santiago<small>Today, 08:41</small></div><span class="a">−$830</span></div>
+            <div class="tx"><i style="background:#1d3a30">↓</i><div class="n">Salary<small>Yesterday</small></div><span class="a" style="color:var(--mint)">+$1.150.000</span></div>
+            <div class="tx"><i style="background:#3a1d2a">♫</i><div class="n">Spotify<small>Mon</small></div><span class="a">−$6.590</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card3d">
+        <div class="row1"><span>Nico's</span><span class="chipg"></span></div>
+        <div class="num">4821 •••• •••• 9034</div>
+        <div class="row3"><span>NICOLÁS MIRAS</span><span>METAL</span></div>
+      </div>
+      <div class="toast">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <div><b>3 cards blocked</b><span>Debit, credit and virtual</span></div>
+      </div>
+      <div class="toast t2">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        <div><b>Account locked</b><span>Back in 1h after ID check</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="block" id="security">
+  <div class="wrap">
+    <div class="kicker">Security that picks up the phone</div>
+    <h2>One call. Everything&nbsp;locked.</h2>
+    <p class="sub">Our AI emergency agent talks you through it, locks your account and blocks every card in real time, and hands the case to our fraud team.</p>
+
+    <div class="bento">
+      <div class="tile t-big">
+        <div class="steps">
+          <div class="step"><i>✓</i>RUT checked</div>
+          <div class="step"><i>✓</i>Account locked</div>
+          <div class="step"><i>✓</i>Debit, credit and virtual cards blocked</div>
+          <div class="step"><i>✓</i>Incident ticket sent to Fraud &amp; Security</div>
+        </div>
+        <h3>Locked while you're<br>still on the line.</h3>
+        <p>No menus, no hold music. Tell us what happened and watch it get handled.</p>
+      </div>
+      <div class="tile t-sm t-pink">
+        <div class="bignum">24/7</div>
+        <h3>Always on.</h3>
+        <p>3am on a Sunday? We pick up instantly.</p>
+      </div>
+      <div class="tile t-half t-blue">
+        <div class="art"><div class="lockring"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div></div>
+        <h3>Back in an hour.<br>Only if it's you.</h3>
+        <p>Pass a quick identity check and your account reopens, so the next person in it is really you.</p>
+      </div>
+      <div class="tile t-half">
+        <div class="art lang"><span class="no">PIN</span><span class="no">CVV</span><span class="no">OTP</span></div>
+        <h3>We never ask for<br>your PIN.</h3>
+        <p>No passwords, codes or card numbers, ever. Just what happened, when, and your RUT.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" style="padding-bottom: 40px">
+  <div class="sos">
+    <div>
+      <h2>Something just happened?</h2>
+      <p>Don't wait. Call now and we'll secure your money in under a minute.</p>
+    </div>
+    <div class="cta">
+      <button class="btn btn-white btn-lg js-call">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        Call emergency line
+      </button>
+      <small>Free · Works from any browser · English or Spanish</small>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Nico's Bank · Fictional bank for demo purposes</span>
+    <span>Emergency line powered by ElevenLabs Agents</span>
+  </div>
+</footer>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Emergency call">
+  <div class="phone" id="phone" data-mode="idle">
+    <div class="call-head">
+      <div class="orb"></div>
+      <div class="call-name">Nico's Emergency Line</div>
+      <div class="call-status" id="call-status">Connecting…</div>
+      <div class="call-timer" id="call-timer">00:00</div>
+    </div>
+    <div class="transcript" id="transcript"></div>
+    <div class="call-actions">
+      <button class="round mute" id="mute-btn" aria-pressed="false" title="Mute">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+      </button>
+      <button class="round hang" id="hang-btn" title="Hang up">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(135deg)"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      </button>
+    </div>
+    <div class="ended">
+      <div class="call-status">Call ended</div>
+      <div class="conv-id" id="conv-id-box" hidden>
+        <span id="conv-id"></span><button id="copy-id">Copy</button>
+      </div>
+      <button class="btn btn-white" id="close-btn">Close</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { Conversation } from "https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.28.0/+esm";
+
+  const AGENT_ID = "agent_0101m4y1ss4gekrb34sbfcnf2cm2";
+
+  const $ = (id) => document.getElementById(id);
+  const overlay = $("overlay"), phone = $("phone"), statusEl = $("call-status");
+  const timerEl = $("call-timer"), transcript = $("transcript"), muteBtn = $("mute-btn");
+
+  let conversation = null;
+  let timer = null;
+  let muted = false;
+
+  // Chilean RUT check digit (modulo 11): digits right to left, multiplied by the
+  // cyclic series 2..7, summed; 11 - (sum % 11) gives the digit (11 -> 0, 10 -> K).
+  function computeCheckDigit(body) {
+    let sum = 0;
+    let factor = 2;
+    for (let i = body.length - 1; i >= 0; i--) {
+      sum += Number(body[i]) * factor;
+      factor = factor === 7 ? 2 : factor + 1;
+    }
+    const result = 11 - (sum % 11);
+    if (result === 11) return "0";
+    if (result === 10) return "K";
+    return String(result);
+  }
+
+  function validateRut(raw) {
+    const clean = String(raw ?? "").toUpperCase().replace(/[^0-9K]/g, "");
+    const body = clean.slice(0, -1);
+    const given = clean.slice(-1);
+    if (!/^\d{7,8}$/.test(body) || !/^[0-9K]$/.test(given)) {
+      return { valid: false, reason: "RUT must have 7 or 8 digits plus a check digit (0-9 or K)." };
+    }
+    const expected = computeCheckDigit(body);
+    const normalized = `${Number(body).toLocaleString("es-CL")}-${given}`;
+    return expected === given
+      ? { valid: true, normalized_rut: normalized }
+      : { valid: false, normalized_rut: normalized, reason: "Check digit does not match." };
+  }
+
+  const clientTools = {
+    validate_rut: ({ rut }) => {
+      const result = validateRut(rut);
+      console.log("[validate_rut]", rut, result);
+      return JSON.stringify(result);
+    },
+  };
+
+  function setStatus(text, mode) {
+    statusEl.textContent = text;
+    if (mode) phone.dataset.mode = mode;
+  }
+
+  function startTimer() {
+    const start = Date.now();
+    timer = setInterval(() => {
+      const s = Math.floor((Date.now() - start) / 1000);
+      timerEl.textContent = `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+    }, 500);
+  }
+
+  function addMessage(text, who) {
+    if (!text) return;
+    const el = document.createElement("div");
+    el.className = `msg ${who}`;
+    el.textContent = text;
+    transcript.appendChild(el);
+    transcript.scrollTop = transcript.scrollHeight;
+  }
+
+  function showEnded() {
+    clearInterval(timer);
+    phone.classList.add("is-ended");
+    phone.dataset.mode = "idle";
+    const id = conversation?.getId?.();
+    if (id) {
+      $("conv-id").textContent = id;
+      $("conv-id-box").hidden = false;
+    }
+  }
+
+  async function startCall() {
+    transcript.innerHTML = "";
+    timerEl.textContent = "00:00";
+    phone.classList.remove("is-ended");
+    $("conv-id-box").hidden = true;
+    $("copy-id").textContent = "Copy";
+    muted = false;
+    muteBtn.setAttribute("aria-pressed", "false");
+    overlay.classList.add("open");
+    setStatus("Connecting…", "idle");
+
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+      setStatus("Microphone access is needed to call us.");
+      showEnded();
+      return;
+    }
+
+    try {
+      conversation = await Conversation.startSession({
+        agentId: AGENT_ID,
+        connectionType: "webrtc",
+        clientTools,
+        onConnect: () => { setStatus("Connected", "listening"); startTimer(); },
+        onDisconnect: () => showEnded(),
+        onError: (err) => { console.error(err); setStatus("Something went wrong. Please try again."); },
+        onModeChange: ({ mode }) => setStatus(mode === "speaking" ? "Sarah is speaking…" : "Listening…", mode),
+        onMessage: (m) => {
+          const who = (m.source ?? m.role) === "user" ? "user" : "ai";
+          addMessage(m.message, who);
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      setStatus("Couldn't connect. Please try again.");
+      showEnded();
+    }
+  }
+
+  document.querySelectorAll(".js-call").forEach((b) => b.addEventListener("click", startCall));
+  $("hang-btn").addEventListener("click", () => conversation?.endSession());
+  $("close-btn").addEventListener("click", () => overlay.classList.remove("open"));
+  muteBtn.addEventListener("click", () => {
+    muted = !muted;
+    conversation?.setMicMuted?.(muted);
+    muteBtn.setAttribute("aria-pressed", String(muted));
+  });
+  $("copy-id").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText($("conv-id").textContent); $("copy-id").textContent = "Copied"; } catch {}
+  });
+</script>
+</body>
+</html>

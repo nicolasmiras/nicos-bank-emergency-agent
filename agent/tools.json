@@ -1,0 +1,489 @@
+[
+  {
+    "type": "client",
+    "name": "validate_rut",
+    "description": "Validates a Chilean RUT using the official modulo-11 check digit algorithm. Call it right after the caller gives their RUT and before lookup_customer. Returns valid true/false and the normalized RUT.",
+    "response_timeout_secs": 5,
+    "disable_interruptions": false,
+    "interruption_mode": "allow",
+    "force_pre_tool_speech": false,
+    "pre_tool_speech": "auto",
+    "tool_call_sound_behavior": "auto",
+    "tool_error_handling_mode": "auto",
+    "parameters": {
+      "description": "",
+      "dynamic_variable": "",
+      "is_omitted": false,
+      "type": "object",
+      "required": [
+        "rut"
+      ],
+      "properties": {
+        "rut": {
+          "type": "string",
+          "description": "The RUT exactly as the caller said it, converted to digits, including the check digit. Examples: '12.345.678-5', '123456785', '9876543-K'. The check digit may be 0-9 or K.",
+          "enum": null,
+          "is_system_provided": false,
+          "dynamic_variable": "",
+          "allowed_values": null,
+          "allowed_values_dynamic_variable": "",
+          "constant_value": "",
+          "is_omitted": false
+        }
+      }
+    },
+    "expects_response": true,
+    "dynamic_variables": {
+      "dynamic_variable_placeholders": {}
+    },
+    "execution_mode": "immediate"
+  },
+  {
+    "type": "webhook",
+    "name": "lookup_customer",
+    "description": "Checks that the RUT belongs to a Nico's Bank customer. Call after validate_rut returns valid.",
+    "response_timeout_secs": 15,
+    "disable_interruptions": false,
+    "interruption_mode": "allow",
+    "force_pre_tool_speech": false,
+    "pre_tool_speech": "auto",
+    "tool_call_sound_behavior": "auto",
+    "tool_error_handling_mode": "auto",
+    "dynamic_variables": {
+      "dynamic_variable_placeholders": {}
+    },
+    "execution_mode": "immediate",
+    "api_schema": {
+      "request_headers": {},
+      "kind": "webhook",
+      "url": "{TUNNEL_URL}/api/customers/lookup",
+      "method": "POST",
+      "path_params_schema": {},
+      "query_params_schema": null,
+      "request_body_schema": {
+        "description": "Payload for lookup_customer",
+        "dynamic_variable": "",
+        "is_omitted": false,
+        "type": "object",
+        "required": [
+          "rut"
+        ],
+        "properties": {
+          "rut": {
+            "type": "string",
+            "description": "Customer RUT, normalized as returned by validate_rut, e.g. '12.345.678-5'.",
+            "enum": null,
+            "is_system_provided": false,
+            "dynamic_variable": "",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          },
+          "conversation_id": {
+            "type": "string",
+            "description": "",
+            "enum": null,
+            "is_system_provided": false,
+            "dynamic_variable": "system__conversation_id",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          }
+        }
+      },
+      "response_body_schema": null,
+      "response_filter": null,
+      "content_type": "application/json",
+      "auth_resolved_params": [],
+      "auth_connection": null,
+      "mtls_auth_connection": null
+    },
+    "follow_redirects": false
+  },
+  {
+    "type": "webhook",
+    "name": "lock_account",
+    "description": "Locks the customer's whole Nico's Bank account. Call only after collecting all required details and getting explicit consent.",
+    "response_timeout_secs": 15,
+    "disable_interruptions": false,
+    "interruption_mode": "allow",
+    "force_pre_tool_speech": false,
+    "pre_tool_speech": "auto",
+    "tool_call_sound_behavior": "auto",
+    "tool_error_handling_mode": "auto",
+    "dynamic_variables": {
+      "dynamic_variable_placeholders": {}
+    },
+    "execution_mode": "immediate",
+    "api_schema": {
+      "request_headers": {},
+      "kind": "webhook",
+      "url": "{TUNNEL_URL}/api/webhooks/account-lock",
+      "method": "POST",
+      "path_params_schema": {},
+      "query_params_schema": null,
+      "request_body_schema": {
+        "description": "Payload for lock_account",
+        "dynamic_variable": "",
+        "is_omitted": false,
+        "type": "object",
+        "required": [
+          "rut",
+          "incident_type"
+        ],
+        "properties": {
+          "rut": {
+            "type": "string",
+            "description": "Customer RUT, normalized as returned by validate_rut, e.g. '12.345.678-5'.",
+            "enum": null,
+            "is_system_provided": false,
+            "dynamic_variable": "",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          },
+          "incident_type": {
+            "type": "string",
+            "description": "Incident type confirmed by the caller.",
+            "enum": [
+              "theft",
+              "robbery",
+              "loss",
+              "fraud"
+            ],
+            "is_system_provided": false,
+            "dynamic_variable": "",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          },
+          "conversation_id": {
+            "type": "string",
+            "description": "",
+            "enum": null,
+            "is_system_provided": false,
+            "dynamic_variable": "system__conversation_id",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          }
+        }
+      },
+      "response_body_schema": null,
+      "response_filter": null,
+      "content_type": "application/json",
+      "auth_resolved_params": [],
+      "auth_connection": null,
+      "mtls_auth_connection": null
+    },
+    "follow_redirects": false
+  },
+  {
+    "type": "webhook",
+    "name": "block_cards",
+    "description": "Blocks the customer's cards. Use scope 'all' (every card, including virtual) whenever the phone was lost or stolen, or for fraud, right after lock_account succeeds. Use scope 'physical' only when the caller lost just a physical card and still has their phone; then lock_account is NOT called.",
+    "response_timeout_secs": 15,
+    "disable_interruptions": false,
+    "interruption_mode": "allow",
+    "force_pre_tool_speech": false,
+    "pre_tool_speech": "auto",
+    "tool_call_sound_behavior": "auto",
+    "tool_error_handling_mode": "auto",
+    "dynamic_variables": {
+      "dynamic_variable_placeholders": {}
+    },
+    "execution_mode": "immediate",
+    "api_schema": {
+      "request_headers": {},
+      "kind": "webhook",
+      "url": "{TUNNEL_URL}/api/webhooks/cards-block",
+      "method": "POST",
+      "path_params_schema": {},
+      "query_params_schema": null,
+      "request_body_schema": {
+        "description": "Payload for block_cards",
+        "dynamic_variable": "",
+        "is_omitted": false,
+        "type": "object",
+        "required": [
+          "rut",
+          "scope"
+        ],
+        "properties": {
+          "rut": {
+            "type": "string",
+            "description": "Customer RUT, normalized as returned by validate_rut, e.g. '12.345.678-5'.",
+            "enum": null,
+            "is_system_provided": false,
+            "dynamic_variable": "",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          },
+          "scope": {
+            "type": "string",
+            "description": "'all' or 'physical'.",
+            "enum": [
+              "all",
+              "physical"
+            ],
+            "is_system_provided": false,
+            "dynamic_variable": "",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          },
+          "card_types": {
+            "description": "Only for scope 'physical': which physical cards to block, e.g. ['debit']. Empty array blocks all physical cards.",
+            "dynamic_variable": "",
+            "constant_value": null,
+            "is_omitted": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Physical card type.",
+              "enum": [
+                "debit",
+                "credit"
+              ],
+              "is_system_provided": false,
+              "dynamic_variable": "",
+              "allowed_values": null,
+              "allowed_values_dynamic_variable": "",
+              "constant_value": "",
+              "is_omitted": false
+            }
+          },
+          "conversation_id": {
+            "type": "string",
+            "description": "",
+            "enum": null,
+            "is_system_provided": false,
+            "dynamic_variable": "system__conversation_id",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          }
+        }
+      },
+      "response_body_schema": null,
+      "response_filter": null,
+      "content_type": "application/json",
+      "auth_resolved_params": [],
+      "auth_connection": null,
+      "mtls_auth_connection": null
+    },
+    "follow_redirects": false
+  },
+  {
+    "type": "webhook",
+    "name": "create_incident",
+    "description": "Registers the incident for the Fraud & Security team and returns a ticket id. Call after the account and cards are locked.",
+    "response_timeout_secs": 15,
+    "disable_interruptions": false,
+    "interruption_mode": "allow",
+    "force_pre_tool_speech": false,
+    "pre_tool_speech": "auto",
+    "tool_call_sound_behavior": "auto",
+    "tool_error_handling_mode": "auto",
+    "dynamic_variables": {
+      "dynamic_variable_placeholders": {}
+    },
+    "execution_mode": "immediate",
+    "api_schema": {
+      "request_headers": {},
+      "kind": "webhook",
+      "url": "{TUNNEL_URL}/api/webhooks/incidents",
+      "method": "POST",
+      "path_params_schema": {},
+      "query_params_schema": null,
+      "request_body_schema": {
+        "description": "Payload for create_incident",
+        "dynamic_variable": "",
+        "is_omitted": false,
+        "type": "object",
+        "required": [
+          "rut",
+          "incident_type",
+          "incident_date",
+          "incident_time",
+          "description"
+        ],
+        "properties": {
+          "rut": {
+            "type": "string",
+            "description": "Customer RUT, normalized as returned by validate_rut, e.g. '12.345.678-5'.",
+            "enum": null,
+            "is_system_provided": false,
+            "dynamic_variable": "",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          },
+          "incident_type": {
+            "type": "string",
+            "description": "Incident type.",
+            "enum": [
+              "theft",
+              "robbery",
+              "loss",
+              "fraud"
+            ],
+            "is_system_provided": false,
+            "dynamic_variable": "",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          },
+          "incident_date": {
+            "type": "string",
+            "description": "Date of the incident, YYYY-MM-DD.",
+            "enum": null,
+            "is_system_provided": false,
+            "dynamic_variable": "",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          },
+          "incident_time": {
+            "type": "string",
+            "description": "Approximate time of the incident, HH:MM 24h.",
+            "enum": null,
+            "is_system_provided": false,
+            "dynamic_variable": "",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          },
+          "description": {
+            "type": "string",
+            "description": "One or two sentence summary of what happened, as confirmed with the caller.",
+            "enum": null,
+            "is_system_provided": false,
+            "dynamic_variable": "",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          },
+          "conversation_id": {
+            "type": "string",
+            "description": "",
+            "enum": null,
+            "is_system_provided": false,
+            "dynamic_variable": "system__conversation_id",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          }
+        }
+      },
+      "response_body_schema": null,
+      "response_filter": null,
+      "content_type": "application/json",
+      "auth_resolved_params": [],
+      "auth_connection": null,
+      "mtls_auth_connection": null
+    },
+    "follow_redirects": false
+  },
+  {
+    "type": "webhook",
+    "name": "submit_csat",
+    "description": "Records the caller's satisfaction survey answer at the end of the call. Call once, after the caller gives a 1-5 score.",
+    "response_timeout_secs": 15,
+    "disable_interruptions": false,
+    "interruption_mode": "allow",
+    "force_pre_tool_speech": false,
+    "pre_tool_speech": "auto",
+    "tool_call_sound_behavior": "auto",
+    "tool_error_handling_mode": "auto",
+    "dynamic_variables": {
+      "dynamic_variable_placeholders": {}
+    },
+    "execution_mode": "immediate",
+    "api_schema": {
+      "request_headers": {},
+      "kind": "webhook",
+      "url": "{TUNNEL_URL}/api/webhooks/csat",
+      "method": "POST",
+      "path_params_schema": {},
+      "query_params_schema": null,
+      "request_body_schema": {
+        "description": "Payload for submit_csat",
+        "dynamic_variable": "",
+        "is_omitted": false,
+        "type": "object",
+        "required": [
+          "score"
+        ],
+        "properties": {
+          "score": {
+            "type": "integer",
+            "description": "Satisfaction score from 1 (very dissatisfied) to 5 (very satisfied).",
+            "enum": null,
+            "is_system_provided": false,
+            "dynamic_variable": "",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          },
+          "comment": {
+            "type": "string",
+            "description": "Optional short comment from the caller, empty string if none.",
+            "enum": null,
+            "is_system_provided": false,
+            "dynamic_variable": "",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          },
+          "rut": {
+            "type": "string",
+            "description": "Customer RUT if known, empty string otherwise.",
+            "enum": null,
+            "is_system_provided": false,
+            "dynamic_variable": "",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          },
+          "conversation_id": {
+            "type": "string",
+            "description": "",
+            "enum": null,
+            "is_system_provided": false,
+            "dynamic_variable": "system__conversation_id",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          }
+        }
+      },
+      "response_body_schema": null,
+      "response_filter": null,
+      "content_type": "application/json",
+      "auth_resolved_params": [],
+      "auth_connection": null,
+      "mtls_auth_connection": null
+    },
+    "follow_redirects": false
+  }
+]

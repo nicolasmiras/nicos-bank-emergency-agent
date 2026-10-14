@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nico's Bank Back-office</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a1628; --panel: #10213b; --panel-2: #152a4a; --line: #1f3557;
+    --text: #e6edf7; --muted: #8aa0bf; --ok: #2fbf71; --bad: #ff5c61; --warn: #f5b041; --accent: #4c9bff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--line); }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+  .mark { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #3b9bff, #0f4fb0); display: grid; place-items: center; font-size: 14px; }
+  .brand small { color: var(--muted); font-weight: 500; margin-left: 6px; }
+  .live { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .live i { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 0 rgba(47,191,113,.6); animation: p 1.6s infinite; }
+  @keyframes p { 70% { box-shadow: 0 0 0 8px rgba(47,191,113,0); } }
+  button { font: inherit; font-size: 13px; color: var(--text); background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; cursor: pointer; }
+  main { display: grid; grid-template-columns: 360px 1fr; gap: 20px; padding: 20px 24px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 12px; }
+  .customer { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; transition: border-color .3s; }
+  .customer.flash { border-color: var(--accent); }
+  .c-top { display: flex; justify-content: space-between; align-items: baseline; }
+  .c-name { font-weight: 600; }
+  .c-rut { color: var(--muted); font-size: 12px; font-family: ui-monospace, Menlo, monospace; }
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .row:first-of-type { margin-top: 10px; }
+  .pill { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; }
+  .pill.active { background: rgba(47,191,113,.15); color: var(--ok); }
+  .pill.locked, .pill.blocked { background: rgba(255,92,97,.15); color: var(--bad); }
+  .unlock { font-size: 12px; color: var(--warn); margin-top: 8px; }
+  .ticket { font-size: 12px; color: var(--accent); margin-top: 4px; }
+  .feed { display: flex; flex-direction: column; gap: 12px; }
+  .empty { color: var(--muted); font-size: 14px; padding: 40px; text-align: center; border: 1px dashed var(--line); border-radius: 14px; }
+  .event { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; animation: in .35s ease-out; }
+  @keyframes in { from { opacity: 0; transform: translateY(-6px); } }
+  .e-head { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--panel-2); font-size: 14px; }
+  .method { font-family: ui-monospace, Menlo, monospace; font-size: 11px; font-weight: 700; color: var(--accent); }
+  .e-service { font-weight: 600; }
+  .e-time { margin-left: auto; color: var(--muted); font-size: 12px; font-family: ui-monospace, Menlo, monospace; }
+  .code { font-family: ui-monospace, Menlo, monospace; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 6px; }
+  .code.ok { background: rgba(47,191,113,.15); color: var(--ok); }
+  .code.err { background: rgba(255,92,97,.15); color: var(--bad); }
+  .e-body { display: grid; grid-template-columns: 1fr 1fr; }
+  .e-body > div { padding: 12px 16px; min-width: 0; }
+  .e-body > div + div { border-left: 1px solid var(--line); }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 6px; }
+  .csat { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+  .csat-top { display: flex; align-items: baseline; gap: 10px; }
+  .csat-avg { font-size: 34px; font-weight: 700; letter-spacing: -0.03em; }
+  .csat-meta { color: var(--muted); font-size: 13px; }
+  .stars { color: var(--warn); letter-spacing: 2px; }
+  .csat-item { border-top: 1px solid var(--line); padding: 8px 0; font-size: 13px; }
+  .csat-item:first-of-type { margin-top: 10px; }
+  .csat-item em { color: var(--muted); font-style: normal; display: block; margin-top: 2px; }
+  pre { margin: 0; font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; color: #c9d6ea; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } .e-body { grid-template-columns: 1fr; } .e-body > div + div { border-left: 0; border-top: 1px solid var(--line); } }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="mark">N</span>Nico's Bank <small>Core banking · back-office</small></div>
+  <div style="display:flex;gap:14px;align-items:center">
+    <span class="live"><i></i>Live</span>
+    <button id="reset">Reset demo</button>
+  </div>
+</header>
+<main>
+  <section>
+    <h2>Customer satisfaction</h2>
+    <div class="csat" id="csat"></div>
+    <h2>Customers</h2>
+    <div id="customers"></div>
+  </section>
+  <section>
+    <h2>Incoming webhooks from ElevenLabs agent</h2>
+    <div class="feed" id="feed"><div class="empty">Waiting for the agent to call a service…</div></div>
+  </section>
+</main>
+<script>
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  let lastSig = "", lastEventId = 0;
+
+  function renderCustomers(customers) {
+    document.getElementById("customers").innerHTML = Object.entries(customers).map(([rut, c]) => `
+      <div class="customer" data-rut="${esc(rut)}">
+        <div class="c-top"><span class="c-name">${esc(c.name)}</span><span class="c-rut">${esc(rut)}</span></div>
+        <div class="row"><span>Account ${esc(c.account.number)}</span><span class="pill ${c.account.status}">${c.account.status}</span></div>
+        ${c.cards.map((k) => `<div class="row"><span>${esc(k.type)} card ····${esc(k.last4)}</span><span class="pill ${k.status}">${k.status}</span></div>`).join("")}
+        ${c.account.unlock_eligible_at ? `<div class="unlock">Unlock eligible after identity validation · ${esc(c.account.unlock_eligible_at.slice(11, 16))}</div>` : ""}
+        ${(c.incidents || []).map((i) => `<div class="ticket">Ticket ${esc(i.ticket_id)} · ${esc(i.incident_type || "")}</div>`).join("")}
+      </div>`).join("");
+  }
+
+  function renderCsat(list) {
+    const el = document.getElementById("csat");
+    if (!list.length) {
+      el.innerHTML = '<div class="csat-top"><span class="csat-avg">–</span><span class="csat-meta">No survey responses yet</span></div>';
+      return;
+    }
+    const avg = list.reduce((s, x) => s + x.score, 0) / list.length;
+    const stars = (n) => "★".repeat(n) + "☆".repeat(5 - n);
+    el.innerHTML = `
+      <div class="csat-top"><span class="csat-avg">${avg.toFixed(1)}</span><span class="csat-meta">/ 5 · ${list.length} response${list.length > 1 ? "s" : ""}</span></div>
+      ${list.slice().reverse().slice(0, 4).map((x) => `
+        <div class="csat-item"><span class="stars">${stars(x.score)}</span> · ${esc(x.at)}
+        ${x.comment ? `<em>"${esc(x.comment)}"</em>` : ""}</div>`).join("")}`;
+  }
+
+  function renderEvents(events) {
+    if (!events.length) {
+      document.getElementById("feed").innerHTML = '<div class="empty">Waiting for the agent to call a service…</div>';
+      return;
+    }
+    document.getElementById("feed").innerHTML = events.slice().reverse().map((e) => `
+      <div class="event">
+        <div class="e-head">
+          <span class="method">POST</span><span class="e-service">${esc(e.service)}</span>
+          <span class="code ${e.status < 300 ? "ok" : "err"}">${e.status}</span>
+          <span class="e-time">${esc(e.at)}</span>
+        </div>
+        <div class="e-body">
+          <div><div class="label">Request</div><pre>${esc(JSON.stringify(e.request, null, 2))}</pre></div>
+          <div><div class="label">Response</div><pre>${esc(JSON.stringify(e.response, null, 2))}</pre></div>
+        </div>
+      </div>`).join("");
+  }
+
+  async function poll() {
+    try {
+      const s = await (await fetch("/api/state")).json();
+      const sig = JSON.stringify(s);
+      if (sig !== lastSig) {
+        lastSig = sig;
+        renderCustomers(s.customers);
+        renderCsat(s.csat || []);
+        renderEvents(s.events);
+        const newest = s.events.at(-1);
+        if (newest && newest.id !== lastEventId) {
+          lastEventId = newest.id;
+          const rut = newest.request?.rut && Object.keys(s.customers).find((r) => r.replace(/\D/g, "") === String(newest.request.rut).replace(/\D/g, ""));
+          const el = rut && document.querySelector(`.customer[data-rut="${rut}"]`);
+          if (el) { el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1200); }
+        }
+      }
+    } catch {}
+    setTimeout(poll, 1000);
+  }
+
+  document.getElementById("reset").addEventListener("click", async () => {
+    await fetch("/api/reset", { method: "POST", body: "{}" });
+    lastSig = "";
+  });
+  poll();
+</script>
+</body>
+</html>
