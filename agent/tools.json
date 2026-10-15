@@ -402,6 +402,59 @@
   },
   {
     "type": "webhook",
+    "name": "notify_fraud_team",
+    "description": "Posts an alert to the Fraud & Security team's Slack channel (#fraud-alerts). Call it once, right after create_incident succeeds, for both FULL LOCK and CARD ONLY cases.",
+    "response_timeout_secs": 10,
+    "disable_interruptions": false,
+    "interruption_mode": "allow",
+    "force_pre_tool_speech": false,
+    "pre_tool_speech": "auto",
+    "tool_call_sound_behavior": "auto",
+    "tool_error_handling_mode": "auto",
+    "dynamic_variables": {
+      "dynamic_variable_placeholders": {}
+    },
+    "execution_mode": "immediate",
+    "api_schema": {
+      "request_headers": {},
+      "kind": "webhook",
+      "url": "{SLACK_WEBHOOK_URL}",
+      "method": "POST",
+      "path_params_schema": {},
+      "query_params_schema": null,
+      "request_body_schema": {
+        "description": "Slack incoming webhook payload",
+        "dynamic_variable": "",
+        "is_omitted": false,
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "The Slack message, in Slack mrkdwn, using exactly this layout with real values (one item per line):\n:rotating_light: *Emergency lock: <Full lock | Card only>*\n*Customer:* <first name> · RUT <normalized RUT>\n*Incident:* <theft | robbery | loss> on <YYYY-MM-DD> at <HH:MM>\n*What happened:* <one-sentence description>\n*Locked:* <e.g. Account + 3 cards, or Debit card only>\n*Ticket:* <ticket_id from create_incident>\n*Conversation:* <the conversation id given in the prompt>",
+            "enum": null,
+            "is_system_provided": false,
+            "dynamic_variable": "",
+            "allowed_values": null,
+            "allowed_values_dynamic_variable": "",
+            "constant_value": "",
+            "is_omitted": false
+          }
+        }
+      },
+      "response_body_schema": null,
+      "response_filter": null,
+      "content_type": "application/json",
+      "auth_resolved_params": [],
+      "auth_connection": null,
+      "mtls_auth_connection": null
+    },
+    "follow_redirects": false
+  },
+  {
+    "type": "webhook",
     "name": "submit_csat",
     "description": "Records the caller's satisfaction survey answer at the end of the call. Call once, after the caller gives a 1-5 score.",
     "response_timeout_secs": 15,

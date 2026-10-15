@@ -8,7 +8,8 @@ Nico's Bank is a fictional Chilean digital bank. Everything behind the agent is 
 |---|---|
 | **Agent** | [Nico's Bank: Emergency Line](https://elevenlabs.io/app/agents/agents/agent_0101m4y1ss4gekrb34sbfcnf2cm2) |
 | **Persona** | James (EN), Catalina (ES, Chilean) via language preset |
-| **Tools** | 1 client tool + 5 webhook tools + `end_call` and `language_detection` |
+| **Tools** | 1 client tool + 6 webhook tools (incl. **Slack**) + `end_call` and `language_detection` |
+| **Third-party integration** | Slack: the agent posts a live alert to the fraud team's `#fraud-alerts` channel |
 | **Knowledge base** | Nico's Bank emergency line policies |
 | **Quality** | 15 agent tests (all passing), 6 evaluation criteria, 10 data collection fields, native guardrails |
 
@@ -22,7 +23,7 @@ Nico's Bank is a fictional Chilean digital bank. Everything behind the agent is 
    - **Short description**, summarized back in one sentence.
 3. `lookup_customer` confirms the RUT belongs to a customer. No date of birth or other personal question is asked.
 4. He picks the **protection level** and asks for explicit consent.
-5. Webhooks hit the bank's services: `lock_account` → `block_cards` → `create_incident`.
+5. Webhooks hit the bank's services: `lock_account` → `block_cards` → `create_incident`, then the agent posts an alert to the fraud team's **Slack** channel with `notify_fraud_team`.
 6. He confirms the outcome: account and cards locked, ticket number read digit by digit, access back **in 1 hour after an identity validation** (so the next person using the account is really the customer), and cards can then be unblocked from the app.
 7. Follow-up questions (replacement cards, unblocking, police report) are answered from the **knowledge base**.
 8. **CSAT**: one 1-5 question; only a score of 1 to 3 gets a "what could we have done better?" follow-up. Sent with `submit_csat` and mirrored into ElevenLabs' native CSAT, then `end_call`.
@@ -40,6 +41,7 @@ sequenceDiagram
     participant A as ElevenLabs Agent
     participant B as Mock core banking<br/>(mock_core.py)
     participant D as Back-office dashboard
+    participant S as Slack #fraud-alerts
 
     C->>L: Click "Call emergency line"
     L->>A: WebRTC voice session
@@ -49,6 +51,7 @@ sequenceDiagram
     A->>B: POST /api/webhooks/account-lock
     A->>B: POST /api/webhooks/cards-block
     A->>B: POST /api/webhooks/incidents
+    A->>S: POST Slack incoming webhook (#fraud-alerts)
     A->>B: POST /api/webhooks/csat
     Note over A,B: Caller hangs up
     A->>B: POST /api/webhooks/post-call (HMAC-signed)
@@ -66,6 +69,7 @@ ElevenLabs calls the webhooks from its own servers, so the local backend is expo
 | `lookup_customer` | Webhook | Confirms the RUT is a customer and returns which physical cards they hold (types only, no numbers). |
 | `lock_account` | Webhook | Locks the account and returns `unlock_eligible_at` (+1h) and `unlock_requirement: identity_validation`. |
 | `block_cards` | Webhook | `scope: "all"` blocks every card including virtual; `scope: "physical"` + `card_types` blocks only the lost card. |
+| `notify_fraud_team` | Webhook (Slack) | Third-party integration: the agent calls Slack's incoming webhook directly and posts a formatted alert (customer, RUT, incident, protection level, ticket, conversation ID) to `#fraud-alerts`. The webhook URL is a secret, kept out of the repo. |
 | `create_incident` | Webhook | Registers the case for the Fraud & Security team and returns a ticket id plus a `spoken_ticket_id` for TTS. |
 | `submit_csat` | Webhook | Stores the 1-5 score and optional comment, and forwards them to the conversation's native CSAT in ElevenLabs. |
 | `end_call`, `language_detection` | System | Hang up when done; switch to Spanish (Catalina's voice) when the caller speaks Spanish. |

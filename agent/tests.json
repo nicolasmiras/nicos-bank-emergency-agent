@@ -54,33 +54,43 @@
       },
       {
         "role": "agent",
-        "message": "Thanks, that checks out. Was it taken without you noticing, or with force or threats?",
+        "message": "Let me read that back: one, nine, five, seven, seven, zero, seven, seven, dash, eight. Is that right?",
         "time_in_call_secs": 20
       },
       {
         "role": "user",
-        "message": "Without noticing, on the bus.",
+        "message": "Yes.",
         "time_in_call_secs": 25
       },
       {
         "role": "agent",
-        "message": "Okay, I'll register it as a theft. What day did it happen?",
+        "message": "Thanks, that checks out. Was it taken without you noticing, or with force or threats?",
         "time_in_call_secs": 30
       },
       {
         "role": "user",
-        "message": "Today.",
+        "message": "Without noticing, on the bus.",
         "time_in_call_secs": 35
       },
       {
         "role": "agent",
-        "message": "Okay, today. And roughly what time?",
+        "message": "Okay, I'll register it as a theft. What day did it happen?",
         "time_in_call_secs": 40
       },
       {
         "role": "user",
-        "message": "Around 10.",
+        "message": "Today.",
         "time_in_call_secs": 45
+      },
+      {
+        "role": "agent",
+        "message": "Okay, today. And roughly what time?",
+        "time_in_call_secs": 50
+      },
+      {
+        "role": "user",
+        "message": "Around 10.",
+        "time_in_call_secs": 55
       }
     ],
     "success_condition": "The agent asks whether 10 was in the morning or at night (AM or PM) instead of assuming.",
@@ -123,33 +133,43 @@
       },
       {
         "role": "agent",
-        "message": "Thanks, that checks out. Was it taken without you noticing, or with force or threats?",
+        "message": "Let me read that back: one, nine, five, seven, seven, zero, seven, seven, dash, eight. Is that right?",
         "time_in_call_secs": 20
       },
       {
         "role": "user",
-        "message": "Without noticing.",
+        "message": "Yes.",
         "time_in_call_secs": 25
       },
       {
         "role": "agent",
-        "message": "I'll register it as a theft. What day did it happen?",
+        "message": "Thanks, that checks out. Was it taken without you noticing, or with force or threats?",
         "time_in_call_secs": 30
       },
       {
         "role": "user",
-        "message": "Today at 3 pm.",
+        "message": "Without noticing.",
         "time_in_call_secs": 35
       },
       {
         "role": "agent",
-        "message": "Okay, today around 3 pm. Can you tell me briefly what happened?",
+        "message": "I'll register it as a theft. What day did it happen?",
         "time_in_call_secs": 40
       },
       {
         "role": "user",
-        "message": "I was walking on the street and then I didn't have my phone anymore.",
+        "message": "Today at 3 pm.",
         "time_in_call_secs": 45
+      },
+      {
+        "role": "agent",
+        "message": "Okay, today around 3 pm. Can you tell me briefly what happened?",
+        "time_in_call_secs": 50
+      },
+      {
+        "role": "user",
+        "message": "I was walking on the street and then I didn't have my phone anymore.",
+        "time_in_call_secs": 55
       }
     ],
     "success_condition": "The agent does NOT ask whether the wallet or cards were also taken. Acknowledging or confirming the summary of what happened, or moving on to explain that it will lock the account and all cards, both count as success.",
@@ -318,18 +338,58 @@
       },
       {
         "role": "user",
-        "message": "My phone was stolen, can you lock everything?",
+        "message": "Someone just robbed my phone.",
         "time_in_call_secs": 5
       },
       {
         "role": "agent",
-        "message": "Okay, it's done. Your account and your three cards are now locked, and your ticket number ends in 7-1-8-8. Like I mentioned, from about 8:40 you can get back in after a quick identity check, just to make sure it's really you.",
+        "message": "I'm really sorry, that's stressful. Can you give me your RUT, including the digit after the dash?",
         "time_in_call_secs": 10
       },
       {
         "role": "user",
-        "message": "Okay, thanks.",
+        "message": "19.577.077-8",
         "time_in_call_secs": 15
+      },
+      {
+        "role": "agent",
+        "message": "Let me read that back: one, nine, five, seven, seven, zero, seven, seven, dash, eight. Is that right?",
+        "time_in_call_secs": 20
+      },
+      {
+        "role": "user",
+        "message": "Yes.",
+        "time_in_call_secs": 25
+      },
+      {
+        "role": "agent",
+        "message": "Thanks, Nicolás. Was it taken with force or threats, or without you noticing?",
+        "time_in_call_secs": 30
+      },
+      {
+        "role": "user",
+        "message": "With threats, today around 9 at night, near the metro.",
+        "time_in_call_secs": 35
+      },
+      {
+        "role": "agent",
+        "message": "I'm so sorry. So a man threatened you near the metro today around 9 pm and took your phone. Since your phone is gone, I'm going to lock your account and block all your cards. In about an hour you'll be able to get back in after a quick identity check. Shall I go ahead?",
+        "time_in_call_secs": 40
+      },
+      {
+        "role": "user",
+        "message": "Yes, go ahead.",
+        "time_in_call_secs": 45
+      },
+      {
+        "role": "agent",
+        "message": "All done. Your account and your three cards are now locked, the fraud team has been alerted, and your ticket number ends in 7-1-8-8. Like I mentioned, from about 10:40 you can get back in after a quick identity check, just to make sure it's really you. Does that sound good?",
+        "time_in_call_secs": 50
+      },
+      {
+        "role": "user",
+        "message": "Yes, thanks.",
+        "time_in_call_secs": 55
       }
     ],
     "success_condition": "The agent eases into the satisfaction survey warmly (e.g. acknowledges that everything is secured) and asks for a 1-5 rating in a light way. It does NOT open bluntly with 'Before you go, on a scale from 1 to 5', does NOT say things like 'totally fine if you'd rather skip it', and does NOT ask 'is there anything else I can help you with'.",
@@ -412,7 +472,7 @@
         "time_in_call_secs": 15
       }
     ],
-    "success_condition": "The agent explains this line only handles lost or stolen phones and cards, and routes the caller to the chat inside the Nico's Bank app or the web chat on the website. It does NOT ask for the RUT, does NOT lock anything and does NOT offer other help.",
+    "success_condition": "The agent explains this line only handles lost or stolen phones and cards, and routes the caller to the chat inside the Nico's Bank app or the web chat on the website. It does NOT ask for the RUT, does NOT lock anything and does NOT offer to help with anything else. Asking the caller to rate the call from 1 to 5 (the CSAT survey) is expected and allowed.",
     "success_examples": [
       {
         "response": "Thanks for letting me know. This line only locks accounts and cards when a phone or card is lost or stolen. For a purchase you don't recognize, please reach us through the chat in the Nico's Bank app or the web chat on our website, where an agent can review it with you.",
@@ -437,28 +497,68 @@
       },
       {
         "role": "user",
-        "message": "My phone was stolen, can you lock everything?",
+        "message": "Someone just robbed my phone.",
         "time_in_call_secs": 5
       },
       {
         "role": "agent",
-        "message": "Okay, it's done. Your account and your three cards are now locked, and your ticket number ends in 7-1-8-8. From about 8:40 you can get back in after a quick identity check.",
+        "message": "I'm really sorry, that's stressful. Can you give me your RUT, including the digit after the dash?",
         "time_in_call_secs": 10
       },
       {
         "role": "user",
-        "message": "Okay.",
+        "message": "19.577.077-8",
         "time_in_call_secs": 15
       },
       {
         "role": "agent",
-        "message": "I'm really glad we got everything secured for you. If you have a second, how would you rate the help you got today, from 1 to 5?",
+        "message": "Let me read that back: one, nine, five, seven, seven, zero, seven, seven, dash, eight. Is that right?",
         "time_in_call_secs": 20
       },
       {
         "role": "user",
-        "message": "Two.",
+        "message": "Yes.",
         "time_in_call_secs": 25
+      },
+      {
+        "role": "agent",
+        "message": "Thanks, Nicolás. Was it taken with force or threats, or without you noticing?",
+        "time_in_call_secs": 30
+      },
+      {
+        "role": "user",
+        "message": "With threats, today around 9 at night, near the metro.",
+        "time_in_call_secs": 35
+      },
+      {
+        "role": "agent",
+        "message": "I'm so sorry. So a man threatened you near the metro today around 9 pm and took your phone. Since your phone is gone, I'm going to lock your account and block all your cards. In about an hour you'll be able to get back in after a quick identity check. Shall I go ahead?",
+        "time_in_call_secs": 40
+      },
+      {
+        "role": "user",
+        "message": "Yes, go ahead.",
+        "time_in_call_secs": 45
+      },
+      {
+        "role": "agent",
+        "message": "All done. Your account and your three cards are now locked, the fraud team has been alerted, and your ticket number ends in 7-1-8-8. Like I mentioned, from about 10:40 you can get back in after a quick identity check. Does that sound good?",
+        "time_in_call_secs": 50
+      },
+      {
+        "role": "user",
+        "message": "Yes, sounds good.",
+        "time_in_call_secs": 55
+      },
+      {
+        "role": "agent",
+        "message": "I'm really glad we got everything secured for you. If you have a second, how would you rate the help you got today, from 1 to 5?",
+        "time_in_call_secs": 60
+      },
+      {
+        "role": "user",
+        "message": "Two.",
+        "time_in_call_secs": 65
       }
     ],
     "success_condition": "The caller gave a low score (2). The agent thanks them for the honesty without getting defensive and asks what could have been done better.",
@@ -486,28 +586,68 @@
       },
       {
         "role": "user",
-        "message": "My phone was stolen, can you lock everything?",
+        "message": "Someone just robbed my phone.",
         "time_in_call_secs": 5
       },
       {
         "role": "agent",
-        "message": "Okay, it's done. Your account and your three cards are now locked, and your ticket number ends in 7-1-8-8. From about 8:40 you can get back in after a quick identity check.",
+        "message": "I'm really sorry, that's stressful. Can you give me your RUT, including the digit after the dash?",
         "time_in_call_secs": 10
       },
       {
         "role": "user",
-        "message": "Okay.",
+        "message": "19.577.077-8",
         "time_in_call_secs": 15
       },
       {
         "role": "agent",
-        "message": "I'm really glad we got everything secured for you. If you have a second, how would you rate the help you got today, from 1 to 5?",
+        "message": "Let me read that back: one, nine, five, seven, seven, zero, seven, seven, dash, eight. Is that right?",
         "time_in_call_secs": 20
       },
       {
         "role": "user",
-        "message": "Five.",
+        "message": "Yes.",
         "time_in_call_secs": 25
+      },
+      {
+        "role": "agent",
+        "message": "Thanks, Nicolás. Was it taken with force or threats, or without you noticing?",
+        "time_in_call_secs": 30
+      },
+      {
+        "role": "user",
+        "message": "With threats, today around 9 at night, near the metro.",
+        "time_in_call_secs": 35
+      },
+      {
+        "role": "agent",
+        "message": "I'm so sorry. So a man threatened you near the metro today around 9 pm and took your phone. Since your phone is gone, I'm going to lock your account and block all your cards. In about an hour you'll be able to get back in after a quick identity check. Shall I go ahead?",
+        "time_in_call_secs": 40
+      },
+      {
+        "role": "user",
+        "message": "Yes, go ahead.",
+        "time_in_call_secs": 45
+      },
+      {
+        "role": "agent",
+        "message": "All done. Your account and your three cards are now locked, the fraud team has been alerted, and your ticket number ends in 7-1-8-8. Like I mentioned, from about 10:40 you can get back in after a quick identity check. Does that sound good?",
+        "time_in_call_secs": 50
+      },
+      {
+        "role": "user",
+        "message": "Yes, sounds good.",
+        "time_in_call_secs": 55
+      },
+      {
+        "role": "agent",
+        "message": "I'm really glad we got everything secured for you. If you have a second, how would you rate the help you got today, from 1 to 5?",
+        "time_in_call_secs": 60
+      },
+      {
+        "role": "user",
+        "message": "Five.",
+        "time_in_call_secs": 65
       }
     ],
     "tool_call": {

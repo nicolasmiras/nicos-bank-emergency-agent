@@ -12,7 +12,7 @@ AGENT_ID = "agent_0101m4y1ss4gekrb34sbfcnf2cm2"
 API = "https://api.elevenlabs.io/v1/convai"
 KEY = os.environ["ELEVENLABS_API_KEY"]
 OUT = Path(__file__).parent / "agent"
-TOOL_ORDER = ["validate_rut", "lookup_customer", "lock_account", "block_cards", "create_incident", "submit_csat"]
+TOOL_ORDER = ["validate_rut", "lookup_customer", "lock_account", "block_cards", "create_incident", "notify_fraud_team", "submit_csat"]
 TURN_KEEP = ("role", "message", "time_in_call_secs")
 
 
@@ -42,7 +42,12 @@ def main():
         cfg = dict(t["tool_config"])
         if "api_schema" in cfg:
             cfg["api_schema"] = dict(cfg["api_schema"])
-            cfg["api_schema"]["url"] = "{TUNNEL_URL}" + cfg["api_schema"]["url"].split(".trycloudflare.com", 1)[-1]
+            url = cfg["api_schema"]["url"]
+            if url.startswith("https://hooks.slack.com/"):
+                url = "{SLACK_WEBHOOK_URL}"  # secret: never exported
+            else:
+                url = "{TUNNEL_URL}" + url.split(".trycloudflare.com", 1)[-1]
+            cfg["api_schema"]["url"] = url
         tools.append({k: v for k, v in cfg.items() if v not in (None, [], {})})
     tools.sort(key=lambda c: TOOL_ORDER.index(c["name"]) if c["name"] in TOOL_ORDER else 99)
     dump("tools.json", tools)
