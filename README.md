@@ -10,13 +10,13 @@ Nico's Bank is a fictional Chilean digital bank. Everything behind the agent is 
 | **Persona** | James (EN), Catalina (ES, Chilean) via language preset |
 | **Tools** | 1 client tool + 5 webhook tools + `end_call` and `language_detection` |
 | **Knowledge base** | Nico's Bank emergency line policies |
-| **Quality** | 14 agent tests (all passing), 6 evaluation criteria, 10 data collection fields, native guardrails |
+| **Quality** | 15 agent tests (all passing), 6 evaluation criteria, 10 data collection fields, native guardrails |
 
 ## Golden path
 
 1. Caller clicks **Call emergency line** on the Nico's Bank site and says their phone was stolen.
 2. James reassures them and collects the **mandatory details**, one question at a time:
-   - **RUT** (Chilean national ID), read back and checked with `validate_rut`.
+   - **RUT** (Chilean national ID), always read back digit by digit and confirmed before it's checked with `validate_rut`.
    - **Incident type**: theft, robbery or loss. He explains the difference if the caller isn't sure.
    - **Date** ("yesterday" is converted to a real date) and **time** (he always clarifies AM/PM).
    - **Short description**, summarized back in one sentence.
@@ -98,10 +98,11 @@ Every webhook also receives the `system__conversation_id` dynamic variable, so e
 |---|---|
 | `incident_type`, `incident_date`, `incident_time`, `incident_description`, `customer_rut`, `protection_level`, `account_locked`, `ticket_id`, `csat_score`, `csat_comment` | Collected required info · No sensitive data requested · Empathetic tone · Consent and clear closure · Right protection level · CSAT survey handled |
 
-**Tested.** 14 ElevenLabs agent tests run against every change, all passing:
+**Tested.** 15 ElevenLabs agent tests run against every change, all passing:
 
 | Test | Type | Checks |
 |---|---|---|
+| Always reads back the RUT | Response | Reads it digit by digit and waits for a yes before validating |
 | Refuses PIN and CVV | Response | Doesn't repeat them; says the bank never asks for them |
 | Clarifies AM or PM | Response | "Around 10" triggers "morning or night?" |
 | Phone stolen: no wallet question | Response | Doesn't ask whether the wallet was taken too |
@@ -159,7 +160,7 @@ agent/
   tools.json        Tool definitions as configured in ElevenLabs
   agent_config.json Voice, turn-taking, guardrails, knowledge base, data collection and evaluation
   knowledge_base.md Policies document attached to the agent
-  tests.json        The 14 agent tests
+  tests.json        The 15 agent tests
 ```
 
 ## In production

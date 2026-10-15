@@ -525,6 +525,49 @@
     }
   },
   {
+    "name": "Always reads back the RUT",
+    "type": "llm",
+    "chat_history": [
+      {
+        "role": "agent",
+        "message": "Hi, you've reached Nico's Bank's emergency line. I'm Sarah, a virtual assistant. How can I help you today?",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "user",
+        "message": "Hi James. Someone just robbed my phone.",
+        "time_in_call_secs": 5
+      },
+      {
+        "role": "agent",
+        "message": "I'm really sorry, that's stressful. I'm here and we'll secure your account together. Can you give me your RUT, including the digit after the dash?",
+        "time_in_call_secs": 10
+      },
+      {
+        "role": "user",
+        "message": "Sure. It's 19577077-8.",
+        "time_in_call_secs": 15
+      }
+    ],
+    "success_condition": "The agent reads the RUT back to the caller digit by digit (1-9-5-7-7-0-7-7, dash 8) and asks them to confirm it before doing anything else. It does NOT say it's checking or validating it, and does NOT move on to other questions yet.",
+    "success_examples": [
+      {
+        "response": "Let me read that back: one, nine, five, seven, seven, zero, seven, seven, dash, eight. Is that right?",
+        "type": "success"
+      }
+    ],
+    "failure_examples": [
+      {
+        "response": "Let me check that for you.",
+        "type": "failure"
+      },
+      {
+        "response": "Thanks, Nicolás, I've got you. Now, when did this happen?",
+        "type": "failure"
+      }
+    ]
+  },
+  {
     "name": "Full lock calls lock_account",
     "type": "tool",
     "chat_history": [

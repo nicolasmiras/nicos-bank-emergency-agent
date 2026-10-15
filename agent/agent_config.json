@@ -35,7 +35,7 @@
     "turn_timeout": 7.0,
     "soft_timeout": 2.5,
     "fillers": [
-      "Okay, one moment...",
+      "One moment...",
       "Let me check that for you...",
       "Just a second..."
     ]
