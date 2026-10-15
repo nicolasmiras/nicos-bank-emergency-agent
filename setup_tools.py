@@ -91,6 +91,9 @@ def setup_post_call_webhook():
     url = f"{BASE}/api/webhooks/post-call"
     hooks = req("GET", "https://api.elevenlabs.io/v1/workspace/webhooks")["webhooks"]
     # The signing secret is only returned on creation, so recreate the webhook on each new tunnel URL.
+    # A webhook still attached to the agent can't be deleted, so detach it first.
+    req("PATCH", f"{API}/agents/{AGENT_ID}",
+        {"platform_settings": {"workspace_overrides": {"webhooks": {"post_call_webhook_id": None}}}})
     for h in hooks:
         if h.get("name") == WEBHOOK_NAME:
             req("DELETE", f"https://api.elevenlabs.io/v1/workspace/webhooks/{h['webhook_id']}")
